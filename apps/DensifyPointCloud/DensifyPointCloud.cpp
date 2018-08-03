@@ -56,6 +56,18 @@ String strConfigFileName;
 boost::program_options::variables_map vm;
 } // namespace OPT
 
+namespace MVS {
+namespace OPTDENSE {
+    GENERAL_API void setFieldnMinResolution(unsigned int v);
+    GENERAL_API void setFieldnResolutionLevel(unsigned int v);
+    GENERAL_API void setFieldnMinViewsFuse(unsigned int v);
+    GENERAL_API void setFieldnMinViewsFilter(unsigned int v);
+    GENERAL_API void setFieldnNumViews(unsigned int v);
+    GENERAL_API void setFieldnEstimateColors(unsigned int v);
+    GENERAL_API void setFieldnEstimateNormals(unsigned int v);
+}
+}
+
 // initialize and parse the command line parameters
 bool Initialize(size_t argc, LPCTSTR* argv)
 {
@@ -162,16 +174,27 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 
 	// init dense options
 	OPTDENSE::init();
-	const bool bValidConfig(OPTDENSE::oConfig.Load(OPT::strDenseConfigFileName));
+	//const bool bValidConfig(OPTDENSE::oConfig.Load(OPT::strDenseConfigFileName));
+    const bool bValidConfig(OPTDENSE::loadOConfigString(OPT::strDenseConfigFileName));
 	OPTDENSE::update();
+    /*
 	OPTDENSE::nResolutionLevel = nResolutionLevel;
 	OPTDENSE::nMinResolution = nMinResolution;
 	OPTDENSE::nNumViews = nNumViews;
 	OPTDENSE::nMinViewsFuse = nMinViewsFuse;
 	OPTDENSE::nEstimateColors = nEstimateColors;
 	OPTDENSE::nEstimateNormals = nEstimateNormals;
-	if (!bValidConfig)
-		OPTDENSE::oConfig.Save(OPT::strDenseConfigFileName);
+    */
+    OPTDENSE::setFieldnResolutionLevel(nResolutionLevel);
+    OPTDENSE::setFieldnMinResolution(nMinResolution);
+    OPTDENSE::setFieldnNumViews(nNumViews);
+    OPTDENSE::setFieldnMinViewsFuse(nMinViewsFuse);
+    OPTDENSE::setFieldnEstimateColors(nEstimateColors);
+    OPTDENSE::setFieldnEstimateNormals(nEstimateNormals);
+    
+    if (!bValidConfig)
+		//OPTDENSE::oConfig.Save(OPT::strDenseConfigFileName);
+        OPTDENSE::saveOConfigString(OPT::strDenseConfigFileName);
 
 	// initialize global options
 	Process::setCurrentProcessPriority((Process::Priority)OPT::nProcessPriority);

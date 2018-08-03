@@ -55,6 +55,11 @@ SET(OpenMVS_CONFIG_INCLUDE_DIR "${CMAKE_BINARY_DIR}/" CACHE PATH "Where to creat
 
 INCLUDE_DIRECTORIES("${OpenMVS_SOURCE_DIR}")
 
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
+include_directories(${CMAKE_INSTALL_PREFIX}/gmp)
+link_directories(${CMAKE_INSTALL_PREFIX}/gmp)
+
 # Find required packages
 if(OpenMVS_USE_OPENMP)
 	FIND_PACKAGE(OpenMP)

@@ -176,16 +176,17 @@ public:
 	static inline VIndex GetVertex(const Face& f, VIndex v) { const uint32_t idx(FindVertex(f, v)); ASSERT(idx != NO_ID); return f[idx]; }
 	static inline VIndex& GetVertex(Face& f, VIndex v) { const uint32_t idx(FindVertex(f, v)); ASSERT(idx != NO_ID); return f[idx]; }
 
+
+#ifdef _USE_CUDA
+    static bool InitKernels(int device = -1);
+    static bool ResetKernels();
+#endif
 protected:
 	bool LoadPLY(const String& fileName);
 	bool LoadOBJ(const String& fileName);
 
 	bool SavePLY(const String& fileName, const cList<String>& comments=cList<String>(), bool bBinary=true) const;
 	bool SaveOBJ(const String& fileName) const;
-
-	#ifdef _USE_CUDA
-	static bool InitKernels(int device=-1);
-	#endif
 
 	#ifdef _USE_BOOST
 	// implement BOOST serialization

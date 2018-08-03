@@ -100,10 +100,12 @@ extern String g_strWorkingFolderFull; // full path to current folder
 
 // macros simplifying the task of managing options
 #define DECOPT_SPACE(SPACE) namespace SPACE { \
-	void init(); \
-	void update(); \
+	GENERAL_API void init(); \
+	GENERAL_API void update(); \
 	extern SEACAVE::VoidArr arrFncOpt; \
 	extern SEACAVE::CConfigTable oConfig; \
+    GENERAL_API void saveOConfigString(const String&, SML::SAVEFLAG=SML::NONE);\
+    GENERAL_API bool loadOConfigString(const String&);\
 }
 #define DEFOPT_SPACE(SPACE, name) namespace SPACE { \
 	SEACAVE::CConfigTable oConfig(name); \
@@ -119,10 +121,13 @@ extern String g_strWorkingFolderFull; // full path to current folder
 		FOREACH(i, arrFncOpt) \
 			((FNCUPDATE)arrFncOpt[i])(); \
 	} \
+    void saveOConfigString(const String& s, SML::SAVEFLAG f) { oConfig.Save(s, f); } \
+    bool loadOConfigString(const String& s) { return oConfig.Load(s); } \
 }
 
 #define DEFVAR_OPTION(SPACE, flags, type, name, title, desc, ...) namespace SPACE { \
 	type name; \
+    GENERAL_API void setField##name(type v) { name = v; } \
 	LPCTSTR defval_##name(NULL); \
 	void update_##name() { \
 		SEACAVE::String::FromString(oConfig[title].val, name); \

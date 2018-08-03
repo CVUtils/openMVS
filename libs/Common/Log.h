@@ -22,7 +22,8 @@
 #define LOG_THREAD // make log multi-thread safe
 #define LOG_STREAM // add stream support (operator <<)
 #define LOGTYPE_SIZE	8
-#define DEFAULT_LOGTYPE	_T("App     ")
+//#define DEFAULT_LOGTYPE	_T("App     ")
+#define DEFAULT_LOGTYPE	_T("Recon 3D")
 
 #define DECLARE_LOG() \
 	protected: static const UINT ms_nLogType;

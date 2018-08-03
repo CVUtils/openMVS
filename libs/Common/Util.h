@@ -207,7 +207,8 @@ public:
 		#ifdef _MSC_VER
 		TCHAR buf[MAX_PATH+1];
 		GetModuleFileName(NULL, buf, MAX_PATH);
-		return ensureUnifySlash(String(buf));
+        String sbuf(buf);
+		return ensureUnifySlash(sbuf);
 		#else // _MSC_VER
 		LPTSTR home = getenv("HOME");
 		if (home == NULL)

@@ -315,6 +315,7 @@ bool DepthMapsData::SelectViews(DepthData& depthData)
 
 	// remove invalid neighbor views
 	const float fMinArea(OPTDENSE::fMinArea);
+    //const float fMinArea(0.02f);
 	const float fMinScale(0.2f), fMaxScale(3.2f);
 	const float fMinAngle(FD2R(OPTDENSE::fMinAngle));
 	const float fMaxAngle(FD2R(OPTDENSE::fMaxAngle));
@@ -785,6 +786,38 @@ bool DepthMapsData::EstimateDepthMap(IIndex idxImage)
 			pThread->join();
 		estimators.Release();
 	}
+
+    // mask results
+    {
+        BitMatrix mask;
+#ifdef _USE_BOOST
+        std::ifstream fs(ComposeDepthFilePath(idxImage, "bmask"), std::ios::in | std::ios::binary);
+        if (fs.is_open())
+        {
+            boost::archive::text_iarchive ar(fs, ARCHIVE_BINARY_ZIP);
+            mask.load(ar, 0);
+        }
+#endif
+        if (!mask.empty() && mask.size().width > 0 && mask.size().height > 0)
+        {
+            float scaleX = 1.f;
+            float scaleY = 1.f;
+            if (mask.size() != size)
+            {
+                scaleX = (float)mask.size().width / (float)size.width;
+                scaleY = (float)mask.size().height / (float)size.height;
+            }
+            for (int i = 0; i < size.height; ++i)
+                for (int j = 0; j < size.width; ++j)
+                    if (!mask.isSet((int)((float)i * scaleY + 0.5f), (int)((float)j * scaleX + 0.5f)))
+                    {
+                        depthData.depthMap(i, j) = 0;
+                        depthData.confMap(i, j) = 0;
+                        //depthData.normalMap(i, j) = Normal::ZERO;
+                    }
+        }
+        mask.release();
+    }
 
 	DEBUG_EXTRA("Depth-map for image %3u %s: %dx%d (%s)", image.pImageData-scene.images.Begin(),
 		depthData.images.GetSize() > 2 ?
@@ -1370,7 +1403,11 @@ void DepthMapsData::FuseDepthMaps(PointCloud& pointcloud, bool bEstimateNormal)
 				if (depth == 0)
 					continue;
 				++nDepths;
-				ASSERT(ISINSIDE(depth, depthData.dMin, depthData.dMax));
+                if (!ISINSIDE(depth, depthData.dMin, depthData.dMax))
+                {
+                    static bool bOnce = true;
+                    if (bOnce) { ASSERT(ISINSIDE(depth, depthData.dMin, depthData.dMax)); bOnce = false; };
+                }
 				uint32_t& idxPoint = depthIdxs(x);
 				if (idxPoint != NO_ID)
 					continue;
@@ -1421,7 +1458,7 @@ void DepthMapsData::FuseDepthMaps(PointCloud& pointcloud, bool bEstimateNormal)
 						invalidDepths.Insert(&depthB);
 					}
 				}
-				if (views.GetSize() < nMinViewsFuse) {
+				if (views.GetSize() < nMinViewsFuse || !ISFINITE(X) || confidence <= 0.1) {
 					// remove point
 					FOREACH(v, views) {
 						const IIndex idxImageB(views[v]);

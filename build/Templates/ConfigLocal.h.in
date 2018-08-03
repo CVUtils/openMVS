@@ -17,7 +17,9 @@
 #cmakedefine _USE_BREAKPAD
 
 // Boost support
-#cmakedefine _USE_BOOST
+#ifndef _USE_BOOST
+	#cmakedefine _USE_BOOST
+#endif
 
 // Eigen Matrix & Linear Algebra Library
 #cmakedefine _USE_EIGEN
@@ -46,7 +48,9 @@
 #cmakedefine _USE_OPENCL_SVM
 
 // NVidia Cuda Runtime API
-#cmakedefine _USE_CUDA
+#ifndef _USE_CUDA
+	#cmakedefine _USE_CUDA
+#endif
 
 // Fast float to int support
 #cmakedefine _USE_FAST_FLOAT2INT

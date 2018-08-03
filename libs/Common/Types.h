@@ -2236,7 +2236,7 @@ public:
 	Type* data;
 
 #ifdef _USE_BOOST
-protected:
+//protected:
 	// implement BOOST serialization
 	friend class boost::serialization::access;
 	template<class Archive>
