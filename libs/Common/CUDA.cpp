@@ -42,7 +42,9 @@ int _convertSMVer2Cores(int major, int minor)
 		{0x37, 192}, // Kepler Generation (SM 3.7) GK21x class
 		{0x50, 128}, // Maxwell Generation (SM 5.0) GM10x class
 		{0x52, 128}, // Maxwell Generation (SM 5.2) GM20x class
-		{-1, -1}
+        {0x60, 64}, // Pascal Generation (SM 6.0) GP100 class
+        {0x61, 64}, // Pascal Generation (SM 6.1) GP104 class
+        {-1, -1}
 	};
 
 	int index(0);
