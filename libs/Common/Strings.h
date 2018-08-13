@@ -22,7 +22,7 @@ namespace SEACAVE {
 // S T R U C T S ///////////////////////////////////////////////////
 
 /// String class: enhanced std::string
-class GENERAL_API String : public std::string
+class /*GENERAL_API*/ String : public std::string
 {
 public:
 	typedef std::string Base;
