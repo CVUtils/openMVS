@@ -52,6 +52,7 @@ SET(OpenMVS_USE_OPENGL ON CACHE BOOL "Enable OpenGL library")
 SET(OpenMVS_USE_CUDA ON CACHE BOOL "Enable CUDA library")
 SET(OpenMVS_USE_BREAKPAD ON CACHE BOOL "Enable BreakPad library")
 SET(OpenMVS_CONFIG_INCLUDE_DIR "${CMAKE_BINARY_DIR}/" CACHE PATH "Where to create the build/platform specific header")
+SET(OpenMVS_USE_UNICODE OFF CACHE BOOL "Enable unicode strings")
 
 INCLUDE_DIRECTORIES("${OpenMVS_SOURCE_DIR}")
 
@@ -59,6 +60,10 @@ include_directories(${CMAKE_INSTALL_PREFIX}/include)
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 include_directories(${CMAKE_INSTALL_PREFIX}/gmp)
 link_directories(${CMAKE_INSTALL_PREFIX}/gmp)
+
+if(OpenMVS_USE_UNICODE)
+	ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+endif(OpenMVS_USE_UNICODE)
 
 # Find required packages
 if(OpenMVS_USE_OPENMP)
