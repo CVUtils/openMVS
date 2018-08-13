@@ -16,7 +16,7 @@ using namespace SEACAVE;
 
 // S T R U C T S ///////////////////////////////////////////////////
 
-DEFINE_LOG(CImage, _T("IO      "));
+DEFINE_LOG(CImage, ("IO      "));
 
 // Set the image details;
 // if image's data is not NULL, but its size is too small,
@@ -44,7 +44,7 @@ HRESULT CImage::Reset(UINT width, UINT height, PIXELFORMAT pixFormat, UINT level
 } // Reset
 /*----------------------------------------------------------------*/
 
-HRESULT CImage::Reset(LPCTSTR szFileName, IMCREATE mode)
+HRESULT CImage::Reset(LPCSTR szFileName, IMCREATE mode)
 {
 	// open the new image stream
 	m_fileName = szFileName;
@@ -61,7 +61,7 @@ HRESULT CImage::Reset(LPCTSTR szFileName, IMCREATE mode)
 		return _INVALIDFILE;
 	}
 	if ((m_pStream = f) == NULL) {
-		LOG(LT_IMAGE, _T("error: failed opening image '%s'"), szFileName);
+		LOG(LT_IMAGE, ("error: failed opening image '%s'"), szFileName);
 		return _INVALIDFILE;
 	}
 	return _OK;
@@ -867,37 +867,37 @@ void CImage::CopyFlipRB24(uint8_t* pDst, const uint8_t* pSrc, UINT size, UINT st
 /*----------------------------------------------------------------*/
 
 
-CImage* CImage::Create(LPCTSTR szName, IMCREATE mode)
+CImage* CImage::Create(LPCSTR szName, IMCREATE mode)
 {
 	// check image file type
 	CImage* pImage;
-	LPCTSTR const fext = _tcsrchr(szName, '.');
+	LPCSTR const fext = strrchr(szName, '.');
 	if (fext == NULL)
 		goto UNKNOWN_FORMAT;
-	if (_tcsncicmp(fext, _T(".sci"), 4) == 0)
+	if (strnicmp(fext, (".sci"), 4) == 0)
 		pImage = new CImageSCI();
 	#ifdef _IMAGE_BMP
-	else if (_tcsncicmp(fext, _T(".bmp"), 4) == 0)
+	else if (strnicmp(fext, (".bmp"), 4) == 0)
 		pImage = new CImageBMP();
 	#endif
 	#ifdef _IMAGE_TGA
-	else if (_tcsncicmp(fext, _T(".tga"), 4) == 0)
+	else if (strnicmp(fext, (".tga"), 4) == 0)
 		pImage = new CImageTGA();
 	#endif
 	#ifdef _IMAGE_DDS
-	else if (_tcsncicmp(fext, _T(".dds"), 4) == 0)
+	else if (strnicmp(fext, (".dds"), 4) == 0)
 		pImage = new CImageDDS();
 	#endif
 	#ifdef _IMAGE_PNG
-	else if (_tcsncicmp(fext, _T(".png"), 4) == 0)
+	else if (strnicmp(fext, (".png"), 4) == 0)
 		pImage = new CImagePNG();
 	#endif
 	#ifdef _IMAGE_JPG
-	else if (_tcsncicmp(fext, _T(".jpg"), 4) == 0)
+	else if (strnicmp(fext, (".jpg"), 4) == 0)
 		pImage = new CImageJPG();
 	#endif
 	#ifdef _IMAGE_TIFF
-	else if (_tcsncicmp(fext, _T(".tif"), 4) == 0 || _tcsncicmp(fext, _T(".tiff"), 5) == 0)
+	else if (strnicmp(fext, (".tif"), 4) == 0 || _tcsncicmp(fext, (".tiff"), 5) == 0)
 		pImage = new CImageTIFF();
 	#endif
 	else
@@ -922,9 +922,9 @@ UNKNOWN_FORMAT:
 #ifndef _RELEASE
 
 // Save image as raw data.
-void CImage::Dump(LPCTSTR szFileName)
+void CImage::Dump(LPCSTR szFileName)
 {
-	const String strName = Util::getFileName(szFileName)+String::ToString(m_width)+_T("x")+String::ToString(m_height)+_T("x")+String::ToString(m_stride)+Util::getFileExt(szFileName);
+	const String strName = Util::getFileName(szFileName)+String::ToString(m_width)+("x")+String::ToString(m_height)+("x")+String::ToString(m_stride)+Util::getFileExt(szFileName);
 	File f(strName, File::WRITE, File::CREATE | File::TRUNCATE);
 	if (!f.isOpen())
 		return;

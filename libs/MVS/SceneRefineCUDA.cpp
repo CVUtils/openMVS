@@ -2848,7 +2848,7 @@ bool Scene::RefineMeshCUDA(unsigned nResolutionLevel, unsigned nMinResolution, u
 		iters = MAXF(iters/(int)(nScale+1),8);
 		const int iterStop(iters*7/10);
 		Eigen::Matrix<float,Eigen::Dynamic,3,Eigen::RowMajor> gradients(mesh.vertices.GetSize(),3);
-		Util::Progress progress(_T("Processed iterations"), iters);
+		Util::Progress progress(("Processed iterations"), iters);
 		GET_LOGCONSOLE().Pause();
 		for (int iter=0; iter<iters; ++iter) {
 			refine.iteration = (unsigned)iter;

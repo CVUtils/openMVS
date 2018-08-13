@@ -210,7 +210,7 @@ public:
 	/* find a property in an element's list */
 	int find_property(PlyElement *, const char *) const;
 
-	static inline bool equal_strings(const char* s1, const char* s2) { return _tcscmp(s1, s2) == 0; }
+	static inline bool equal_strings(const char* s1, const char* s2) { return strcmp(s1, s2) == 0; }
 
 protected:
 	/* write to a file the word describing a PLY file data type */

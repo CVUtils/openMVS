@@ -361,13 +361,13 @@ private:
 #define TOKEN_SIZE		1 //in bytes
 #endif
 #define TOKEN_MAXBUF	(2048*TOKEN_SIZE) //in bytes
-#define TOKEN_MAXIGN	32 //in TCHARs
+#define TOKEN_MAXIGN	32 //in chars
 template<bool managed>
 class TokenInputStream : public LayerInputStream<managed> {
 public:
 	typedef LayerInputStream<managed> Base;
 
-	TokenInputStream(InputStream* aStream, TCHAR aToken=_T('\n')) : LayerInputStream<managed>(aStream), pos(TOKEN_MAXBUF), eos(false), token(aToken) { arrIgnore[0] = _T('\0'); }
+	TokenInputStream(InputStream* aStream, char aToken=('\n')) : LayerInputStream<managed>(aStream), pos(TOKEN_MAXBUF), eos(false), token(aToken) { arrIgnore[0] = ('\0'); }
 	virtual ~TokenInputStream() {
 	}
 
@@ -375,59 +375,59 @@ public:
 		setPos(getPos());
 	}
 
-	TCHAR		getToken() const {
+	char		getToken() const {
 		return token;
 	}
 
-	void		setToken(TCHAR aToken) {
+	void		setToken(char aToken) {
 		token = aToken;
 	}
 
-	LPCTSTR		getTrimTokens() const {
+	LPCSTR		getTrimTokens() const {
 		return arrIgnore;
 	}
 
-	size_t		setTrimTokens(LPCTSTR szIgnore) {
-		const size_t len = _tcslen(szIgnore);
+	size_t		setTrimTokens(LPCSTR szIgnore) {
+		const size_t len = strlen(szIgnore);
 		if (len >= TOKEN_MAXIGN)
 			return 0;
-		_tcscpy(arrIgnore, szIgnore);
+		strcpy(arrIgnore, szIgnore);
 		return len;
 	}
 
-	LPTSTR		trimFrontLine(LPTSTR line) {
-		while (line[0] != _T('\0')) {
-			if (_tcschr(arrIgnore, line[0]) == NULL)
+	LPSTR		trimFrontLine(LPSTR line) {
+		while (line[0] != ('\0')) {
+			if (strchr(arrIgnore, line[0]) == NULL)
 				return line;
 			++line;
 		}
 		return line;
 	}
 
-	LPTSTR		trimFrontLine(MemFile& memFile) {
+	LPSTR		trimFrontLine(MemFile& memFile) {
 		memFile.ensureSize(1);
-		LPTSTR line = (LPTSTR)memFile.getData();
-		line[memFile.getSizeLeft()] = _T('\0');
-		LPTSTR newLine = trimFrontLine(line);
+		LPSTR line = (LPSTR)memFile.getData();
+		line[memFile.getSizeLeft()] = ('\0');
+		LPSTR newLine = trimFrontLine(line);
 		memFile.movePos(newLine-line);
 		return newLine;
 	}
 
-	size_t		trimBackLine(LPTSTR line) {
-		const size_t len = _tcslen(line);
+	size_t		trimBackLine(LPSTR line) {
+		const size_t len = strlen(line);
 		size_t i = len;
-		while (i > 0 && line[--i] != _T('\0')) {
-			if (_tcschr(arrIgnore, line[i]) == NULL)
+		while (i > 0 && line[--i] != ('\0')) {
+			if (strchr(arrIgnore, line[i]) == NULL)
 				return len-(i+1);
-			line[i] = _T('\0');
+			line[i] = ('\0');
 		}
 		return len;
 	}
 
 	size_t		trimBackLine(MemFile& memFile) {
 		memFile.ensureSize(1);
-		LPTSTR line = (LPTSTR)memFile.getData();
-		line[memFile.getSizeLeft()] = _T('\0');
+		LPSTR line = (LPSTR)memFile.getData();
+		line[memFile.getSizeLeft()] = ('\0');
 		const size_t trimedSize = trimBackLine(line);
 		memFile.moveSize(-((size_f_t)trimedSize));
 		return trimedSize;
@@ -435,12 +435,12 @@ public:
 
 	// revert the deleted token during the last readLine()
 	void		restoreToken() {
-		LPTSTR line = (LPTSTR)buf;
+		LPSTR line = (LPSTR)buf;
 		ASSERT(pos > 0);
 		line[--pos] = token;
 	}
 
-	size_t		readLine(LPTSTR wbuf, size_t len) {
+	size_t		readLine(LPSTR wbuf, size_t len) {
 		if (eos)
 			return 0;
 		uint8_t* b = (uint8_t*)wbuf;
@@ -450,12 +450,12 @@ public:
 			const size_t n = read(b, TOKEN_MAXBUF);
 			if (n == STREAM_ERROR)
 				return STREAM_ERROR;
-			*((TCHAR*)(b+n)) = _T('\0');
-			LPTSTR t = _tcschr((TCHAR*)b, token);
+			*((char*)(b+n)) = ('\0');
+			LPSTR t = strchr((char*)b, token);
 			// if token found...
 			if (t != NULL) {
 				// ... set the end of line and return it
-				t[0] = _T('\0');
+				t[0] = ('\0');
 				if (n == TOKEN_SIZE && len != 1) {
 					eos = true;
 					return l2-len;
@@ -484,12 +484,12 @@ public:
 		const size_t n = read(b, len*TOKEN_SIZE);
 		if (n == STREAM_ERROR)
 			return STREAM_ERROR;
-		*((TCHAR*)(b+n)) = _T('\0');
-		LPTSTR t = _tcschr((TCHAR*)b, token);
+		*((char*)(b+n)) = ('\0');
+		LPSTR t = strchr((char*)b, token);
 		// if token found...
 		if (t != NULL) {
 			// ... set the end of line and return it
-			t[0] = _T('\0');
+			t[0] = ('\0');
 			if (n == TOKEN_SIZE && len != 1) {
 				eos = true;
 				return l2-len;
@@ -520,7 +520,7 @@ public:
 		const size_f_t oldSize = memFile.getSize();
 		while (true) {
 			memFile.ensureSize((4096+1)*TOKEN_SIZE);
-			const size_t ret = readLine((LPTSTR)(memFile.getBuffer()+memFile.getSize()), 4096);
+			const size_t ret = readLine((LPSTR)(memFile.getBuffer()+memFile.getSize()), 4096);
 			if (ret == STREAM_ERROR)
 				return STREAM_ERROR;
 			if (ret <= 4096) {
@@ -587,8 +587,8 @@ private:
 	uint8_t buf[TOKEN_MAXBUF+TOKEN_SIZE];
 	size_t pos;
 	bool eos;
-	TCHAR token;
-	TCHAR arrIgnore[TOKEN_MAXIGN];
+	char token;
+	char arrIgnore[TOKEN_MAXIGN];
 };
 /*----------------------------------------------------------------*/
 

@@ -77,7 +77,7 @@ public:
 		#endif
 	}
 
-	File(LPCTSTR aFileName, int access, int mode, int flags=0) : h(INVALID_HANDLE_VALUE) {
+	File(LPCSTR aFileName, int access, int mode, int flags=0) : h(INVALID_HANDLE_VALUE) {
 		#ifndef _RELEASE
 		breakRead = -1;
 		breakWrite = -1;
@@ -90,7 +90,7 @@ public:
 	 * If there are errors, h is set to INVALID_HANDLE_VALUE.
 	 * Use isOpen() to check.
 	 */
-	virtual void open(LPCTSTR aFileName, int access, int mode, int flags=0) {
+	virtual void open(LPCSTR aFileName, int access, int mode, int flags=0) {
 		ASSERT(access == WRITE || access == READ || access == (READ | WRITE));
 
 		close();
@@ -115,7 +115,7 @@ public:
 		if (flags & SEQUENTIAL)
 			f |= FILE_FLAG_SEQUENTIAL_SCAN;
 
-		h = ::CreateFile(aFileName, access, FILE_SHARE_READ, NULL, m, f, NULL);
+		h = ::CreateFileA(aFileName, access, FILE_SHARE_READ, NULL, m, f, NULL);
 	}
 
 	bool isOpen() { return h != INVALID_HANDLE_VALUE; };
@@ -242,28 +242,28 @@ public:
 		return (GetFileInformationByHandle(h, fileInfo) != FALSE);
 	}
 
-	static uint32_t getAttrib(LPCTSTR aFileName) {
-		return GetFileAttributes(aFileName);
+	static uint32_t getAttrib(LPCSTR aFileName) {
+		return GetFileAttributesA(aFileName);
 	}
 
-	static bool setAttrib(LPCTSTR aFileName, uint32_t attribs) {
-		return (SetFileAttributes(aFileName, attribs) != FALSE);
+	static bool setAttrib(LPCSTR aFileName, uint32_t attribs) {
+		return (SetFileAttributesA(aFileName, attribs) != FALSE);
 	}
 
-	static void deleteFile(LPCTSTR aFileName) { ::DeleteFile(aFileName); }
-	static bool renameFile(LPCTSTR source, LPCTSTR target) {
-		if (!::MoveFile(source, target)) {
+	static void deleteFile(LPCSTR aFileName) { ::DeleteFileA(aFileName); }
+	static bool renameFile(LPCSTR source, LPCSTR target) {
+		if (!::MoveFileA(source, target)) {
 			// Can't move, try copy/delete...
-			if (!::CopyFile(source, target, FALSE))
+			if (!::CopyFileA(source, target, FALSE))
 				return false;
 			deleteFile(source);
 		}
 		return true;
 	}
-	static bool copyFile(LPCTSTR source, LPCTSTR target) { return ::CopyFile(source, target, FALSE) == TRUE; }
+	static bool copyFile(LPCSTR source, LPCSTR target) { return ::CopyFileA(source, target, FALSE) == TRUE; }
 
-	static size_f_t getSize(LPCTSTR aFileName) {
-		const HANDLE fh = ::CreateFile(aFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
+	static size_f_t getSize(LPCSTR aFileName) {
+		const HANDLE fh = ::CreateFileA(aFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
 		if (fh == INVALID_HANDLE_VALUE)
 			return SIZE_NA;
 		DWORD x;
@@ -277,13 +277,13 @@ public:
 
 	static size_f_t findFiles(const String& _strPath, const String& strMask, bool bProcessSubdir, FileInfoArr& arrFiles)
 	{	// List all the files.
-		WIN32_FIND_DATA fd;
+		WIN32_FIND_DATAA fd;
 		HANDLE hFind;
 		size_f_t totalSize = 0;
 		String strPath(_strPath);
 		Util::ensureFolderSlash(strPath);
 		//Find all the files in this folder.
-		hFind = FindFirstFile((strPath + strMask).c_str(), &fd);
+		hFind = FindFirstFileA((strPath + strMask).c_str(), &fd);
 		if (hFind != INVALID_HANDLE_VALUE)
 		{
 			do {
@@ -301,27 +301,27 @@ public:
 				fileInfo.attrib = fd.dwFileAttributes;
 				totalSize += fileInfo.size;
 			}
-			while (FindNextFile(hFind, &fd));
+			while (FindNextFileA(hFind, &fd));
 			FindClose(hFind);
 		}
 		//Process the subfolders also...
 		if (!bProcessSubdir)
 			return totalSize;
-		hFind = FindFirstFile((strPath + '*').c_str(), &fd);
+		hFind = FindFirstFileA((strPath + '*').c_str(), &fd);
 		if (hFind != INVALID_HANDLE_VALUE)
 		{
 			do {
 				// if SUBDIR then process that too
 				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					continue;
-				if (!_tcscmp(fd.cFileName, _T(".")))
+				if (!strcmp(fd.cFileName, (".")))
 					continue;
-				if (!_tcscmp(fd.cFileName, _T("..")))
+				if (!strcmp(fd.cFileName, ("..")))
 					continue;
 				// Processe all subfolders recursively
 				totalSize += findFiles(strPath + fd.cFileName + PATH_SEPARATOR, strMask, true, arrFiles);
 			}
-			while (FindNextFile(hFind, &fd));
+			while (FindNextFileA(hFind, &fd));
 			FindClose(hFind);
 		}
 		return totalSize;
@@ -350,7 +350,7 @@ public:
 		#endif
 	}
 
-	File(LPCTSTR aFileName, int access, int mode, int flags=0) : h(-1) {
+	File(LPCSTR aFileName, int access, int mode, int flags=0) : h(-1) {
 		#ifndef _RELEASE
 		breakRead = -1;
 		breakWrite = -1;
@@ -363,7 +363,7 @@ public:
 	 * If there are errors, h is set to -1.
 	 * Use isOpen() to check.
 	 */
-	virtual void open(LPCTSTR aFileName, int access, int mode, int flags=0) {
+	virtual void open(LPCSTR aFileName, int access, int mode, int flags=0) {
 		ASSERT(access == WRITE || access == READ || access == (READ | WRITE));
 
 		close();
@@ -468,9 +468,9 @@ public:
 		return fsync(h);
 	}
 
-	static void deleteFile(LPCTSTR aFileName) { ::remove(aFileName); }
-	static bool renameFile(LPCTSTR source, LPCTSTR target) { return ::rename(source, target) == 0; }
-	static bool copyFile(LPCTSTR source, LPCTSTR target) {
+	static void deleteFile(LPCSTR aFileName) { ::remove(aFileName); }
+	static bool renameFile(LPCSTR source, LPCSTR target) { return ::rename(source, target) == 0; }
+	static bool copyFile(LPCSTR source, LPCSTR target) {
 		std::ifstream src(source, std::ios::binary);
 		if (!src.is_open())
 			return false;
@@ -481,7 +481,7 @@ public:
 		return true;
 	}
 
-	static size_f_t getSize(LPCTSTR aFileName) {
+	static size_f_t getSize(LPCSTR aFileName) {
 		struct stat s;
 		if (stat(aFileName, &s) == -1)
 			return SIZE_NA;
@@ -490,7 +490,7 @@ public:
 
 #endif // _MSC_VER
 
-	static bool access(LPCTSTR aFileName, int mode=CA_EXIST) { return ::_taccess(aFileName, mode) == 0; }
+	static bool access(LPCSTR aFileName, int mode=CA_EXIST) { return ::access(aFileName, mode) == 0; }
 
 	template <class VECTOR>
 	inline size_t write(const VECTOR& arr) {

@@ -194,29 +194,29 @@ void CImageEXIF::DumpAll()
 	// print EXIF info
 	const Exiv2::ExifData& exifData = state.pImage->exifData();
 	if (exifData.empty()) {
-		LOG(LT_IMAGE, _T("Info: Image constains no EXIF data"));
+		LOG(LT_IMAGE, ("Info: Image constains no EXIF data"));
 	} else {
 		Exiv2::ExifData::const_iterator end = exifData.end();
 		for (Exiv2::ExifData::const_iterator i = exifData.begin(); i != end; ++i)
-			LOG(LT_IMAGE, _T("%s %d %s %d %s"), i->key().c_str(), i->tag(), i->typeName(), i->count(), i->print().c_str());
+			LOG(LT_IMAGE, ("%s %d %s %d %s"), i->key().c_str(), i->tag(), i->typeName(), i->count(), i->print().c_str());
 	}
 	// print IPTC info
 	const Exiv2::IptcData& iptcData = state.pImage->iptcData();
 	if (iptcData.empty()) {
-		LOG(LT_IMAGE, _T("Info: Image constains no IPTC data"));
+		LOG(LT_IMAGE, ("Info: Image constains no IPTC data"));
 	} else {
 		Exiv2::IptcData::const_iterator end = iptcData.end();
 		for (Exiv2::IptcData::const_iterator i = iptcData.begin(); i != end; ++i)
-			LOG(LT_IMAGE, _T("%s %d %s %d %s"), i->key().c_str(), i->tag(), i->typeName(), i->count(), i->print().c_str());
+			LOG(LT_IMAGE, ("%s %d %s %d %s"), i->key().c_str(), i->tag(), i->typeName(), i->count(), i->print().c_str());
 	}
 	// print XMP info
 	const Exiv2::XmpData& xmpData = state.pImage->xmpData();
 	if (xmpData.empty()) {
-		LOG(LT_IMAGE, _T("Info: Image constains no XMP data"));
+		LOG(LT_IMAGE, ("Info: Image constains no XMP data"));
 	} else {
 		Exiv2::XmpData::const_iterator end = xmpData.end();
 		for (Exiv2::XmpData::const_iterator i = xmpData.begin(); i != end; ++i)
-			LOG(LT_IMAGE, _T("%s %d %s %d %s"), i->key().c_str(), i->tag(), i->typeName(), i->count(), i->print().c_str());
+			LOG(LT_IMAGE, ("%s %d %s %d %s"), i->key().c_str(), i->tag(), i->typeName(), i->count(), i->print().c_str());
 	}
 } // DumpAll
 /*----------------------------------------------------------------*/

@@ -54,13 +54,13 @@ namespace MVS
     {
         GET_LOG().UnregisterListener(clbk);
     }
-    MVS_API void Log_Write(LPCTSTR szFormat, ...)
+    MVS_API void Log_Write(LPCSTR szFormat, ...)
     {
         va_list args;
         va_start(args, szFormat);
         GET_LOG().Write(szFormat, args);
     }
-    MVS_API void Log_Write(UINT lt, LPCTSTR szFormat, ...)
+    MVS_API void Log_Write(UINT lt, LPCSTR szFormat, ...)
     {
         va_list args;
         va_start(args, szFormat);

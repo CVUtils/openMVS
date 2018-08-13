@@ -242,21 +242,21 @@ public:
 		return key;
 	}
 	static inline Key HashKey(const uint8_t* data, UINT size) { return HashKeyFNV(data, size); }
-	static inline Key HashKey(LPCTSTR sz) { return HashKey((const uint8_t*)sz, (UINT)_tcslen(sz)); }
+	static inline Key HashKey(LPCSTR sz) { return HashKey((const uint8_t*)sz, (UINT)strlen(sz)); }
 	static inline Key HashKey(const String& str) { return HashKey((const uint8_t*)str.c_str(), (UINT)str.size()); }
 
 	// Convenience functions
-	inline		 Type*	Find		(LPCTSTR		key)			{ return  Find  ( HashKey(key) );			}
+	inline		 Type*	Find		(LPCSTR		key)			{ return  Find  ( HashKey(key) );			}
 	inline		 Type*	Find		(const String&	key)			{ return  Find  ( HashKey(key) );			}
-	inline const Type*	Find		(LPCTSTR		key)	const	{ return  Find  ( HashKey(key) );			}
+	inline const Type*	Find		(LPCSTR		key)	const	{ return  Find  ( HashKey(key) );			}
 	inline const Type*	Find		(const String&	key)	const	{ return  Find  ( HashKey(key) );			}
-	inline void			Delete		(LPCTSTR		key)			{		  Delete( HashKey(key) );			}
+	inline void			Delete		(LPCSTR		key)			{		  Delete( HashKey(key) );			}
 	inline void			Delete		(const String&	key)			{		  Delete( HashKey(key.c_str()) );	}
-	inline bool			Exists		(LPCTSTR		key)	const	{ return  Exists( HashKey(key) );			}
+	inline bool			Exists		(LPCSTR		key)	const	{ return  Exists( HashKey(key) );			}
 	inline bool			Exists		(const String&	key)	const	{ return  Exists( HashKey(key.c_str()) );	}
-	inline		 Type&	operator [] (LPCTSTR		key)			{ return (*this)[ HashKey(key) ];			}
+	inline		 Type&	operator [] (LPCSTR		key)			{ return (*this)[ HashKey(key) ];			}
 	inline		 Type&	operator [] (const String&	key)			{ return (*this)[ HashKey(key.c_str()) ];	}
-	inline const Type&	operator [] (LPCTSTR		key)	const	{ return (*this)[ HashKey(key) ];			}
+	inline const Type&	operator [] (LPCSTR		key)	const	{ return (*this)[ HashKey(key) ];			}
 	inline const Type&	operator [] (const String&	key)	const	{ return (*this)[ HashKey(key.c_str()) ];	}
 };
 

@@ -71,7 +71,7 @@ HRESULT CImageBMP::ReadHeader()
 	if (sizeof(BITMAPFILEHEADER) != m_pStream->read(&bmp_fileheader, sizeof(BITMAPFILEHEADER)) ||
 		memcmp(&bmp_fileheader.bfType, "BM", 2))
 	{
-		LOG(LT_IMAGE, _T("error: invalid BMP image"));
+		LOG(LT_IMAGE, ("error: invalid BMP image"));
 		return _INVALIDFILE;
 	}
 
@@ -81,7 +81,7 @@ HRESULT CImageBMP::ReadHeader()
 	if (sizeof(BITMAPINFOHEADER) != m_pStream->read(&bmp_infoheader, sizeof(BITMAPINFOHEADER)) ||
 		bmp_infoheader.biSize != sizeof(bmp_infoheader))
 	{
-		LOG(LT_IMAGE, _T("error: invalid BMP image"));
+		LOG(LT_IMAGE, ("error: invalid BMP image"));
 		return _INVALIDFILE;
 	}
 

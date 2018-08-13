@@ -38,7 +38,7 @@ using namespace MVS;
 
 // D E F I N E S ///////////////////////////////////////////////////
 
-#define APPNAME _T("RefineMesh")
+#define APPNAME "RefineMesh"
 
 
 // S T R U C T S ///////////////////////////////////////////////////
@@ -74,7 +74,7 @@ boost::program_options::variables_map vm;
 } // namespace OPT
 
 // initialize and parse the command line parameters
-bool Initialize(size_t argc, LPCTSTR* argv)
+bool Initialize(size_t argc, LPCSTR* argv)
 {
 	// initialize log and console
 	OPEN_LOG();
@@ -85,8 +85,8 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 	generic.add_options()
 		("help,h", "produce this help message")
 		("working-folder,w", boost::program_options::value<std::string>(&WORKING_FOLDER), "working directory (default current directory)")
-		("config-file,c", boost::program_options::value<std::string>(&OPT::strConfigFileName)->default_value(APPNAME _T(".cfg")), "file name containing program options")
-		("export-type", boost::program_options::value<std::string>(&OPT::strExportType)->default_value(_T("ply")), "file type used to export the 3D scene (ply or obj)")
+		("config-file,c", boost::program_options::value<std::string>(&OPT::strConfigFileName)->default_value(APPNAME ".cfg"), "file name containing program options")
+		("export-type", boost::program_options::value<std::string>(&OPT::strExportType)->default_value(("ply")), "file type used to export the 3D scene (ply or obj)")
 		("archive-type", boost::program_options::value<unsigned>(&OPT::nArchiveType)->default_value(2), "project archive type: 0-text, 1-binary, 2-compressed binary")
 		("process-priority", boost::program_options::value<int>(&OPT::nProcessPriority)->default_value(-1), "process priority (below normal by default)")
 		("max-threads", boost::program_options::value<unsigned>(&OPT::nMaxThreads)->default_value(0), "maximum number of threads (0 for using all available cores)")
@@ -160,11 +160,11 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 	}
 
 	// initialize the log file
-	OPEN_LOGFILE(MAKE_PATH(APPNAME _T("-")+Util::getUniqueName(0)+_T(".log")).c_str());
+	OPEN_LOGFILE(MAKE_PATH(APPNAME "-"+Util::getUniqueName(0)+(".log")).c_str());
 
 	// print application details: version and command line
 	Util::LogBuild();
-	LOG(_T("Command line:%s"), Util::CommandLineToString(argc, argv).c_str());
+	LOG(("Command line:%s"), Util::CommandLineToString(argc, argv).c_str());
 
 	// validate input
 	Util::ensureValidPath(OPT::strInputFileName);
@@ -176,13 +176,13 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 	}
 	if (OPT::strInputFileName.IsEmpty())
 		return false;
-	OPT::strExportType = OPT::strExportType.ToLower() == _T("obj") ? _T(".obj") : _T(".ply");
+	OPT::strExportType = OPT::strExportType.ToLower() == ("obj") ? (".obj") : (".ply");
 
 	// initialize optional options
 	Util::ensureValidPath(OPT::strOutputFileName);
 	Util::ensureUnifySlash(OPT::strOutputFileName);
 	if (OPT::strOutputFileName.IsEmpty())
-		OPT::strOutputFileName = Util::getFileFullName(OPT::strInputFileName) + _T("_refine.mvs");
+		OPT::strOutputFileName = Util::getFileFullName(OPT::strInputFileName) + ("_refine.mvs");
 
 	// initialize global options
 	Process::setCurrentProcessPriority((Process::Priority)OPT::nProcessPriority);
@@ -211,7 +211,7 @@ void Finalize()
 	CLOSE_LOG();
 }
 
-int main(int argc, LPCTSTR* argv)
+int main(int argc, LPCSTR* argv)
 {
 	#ifdef _DEBUGINFO
 	// set _crtBreakAlloc index to stop in <dbgheap.c> at allocation
@@ -259,11 +259,11 @@ int main(int argc, LPCTSTR* argv)
 
 	// save the final mesh
 	const String baseFileName(MAKE_PATH_SAFE(Util::getFileFullName(OPT::strOutputFileName)));
-	scene.Save(baseFileName+_T(".mvs"), (ARCHIVE_TYPE)OPT::nArchiveType);
+	scene.Save(baseFileName+(".mvs"), (ARCHIVE_TYPE)OPT::nArchiveType);
 	scene.mesh.Save(baseFileName+OPT::strExportType);
 	#if TD_VERBOSE != TD_VERBOSE_OFF
 	if (VERBOSITY_LEVEL > 2)
-		scene.ExportCamerasMLP(baseFileName+_T(".mlp"), baseFileName+OPT::strExportType);
+		scene.ExportCamerasMLP(baseFileName+(".mlp"), baseFileName+OPT::strExportType);
 	#endif
 
 	Finalize();

@@ -292,7 +292,7 @@ bool Scene::Load(const String& fileName)
 	// load project header ID
 	char szHeader[4];
 	fs.read(szHeader, 4);
-	if (!fs || _tcsncmp(szHeader, PROJECT_ID, 4) != 0) {
+	if (!fs || strncmp(szHeader, PROJECT_ID, 4) != 0) {
 		fs.close();
 		if (LoadInterface(fileName))
 			return true;

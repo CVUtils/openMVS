@@ -110,7 +110,7 @@ void Timer::SetClock(uint8_t nHH, uint8_t nMM)
  * Gives you a time string with hours, minutes and seconds as return
  * and hours and/or minutes as reference parameters.
  */
-LPTSTR Timer::GetClock(uint8_t* nHH, uint8_t* nMM, LPTSTR szChar) const
+LPSTR Timer::GetClock(uint8_t* nHH, uint8_t* nMM, LPSTR szChar) const
 {
 	if (nHH != NULL)
 		*nHH = m_nHH;
@@ -120,7 +120,7 @@ LPTSTR Timer::GetClock(uint8_t* nHH, uint8_t* nMM, LPTSTR szChar) const
 	if (szChar == NULL)
 		return NULL;
 
-	_stprintf(szChar, "%.2d:%.2d:%.2d", m_nHH, m_nMM, m_nSS);
+	sprintf(szChar, "%.2d:%.2d:%.2d", m_nHH, m_nMM, m_nSS);
 	return szChar;
 } // GetClock
 /*----------------------------------------------------------------*/

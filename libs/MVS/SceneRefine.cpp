@@ -1380,7 +1380,7 @@ bool Scene::RefineMesh(unsigned nResolutionLevel, unsigned nMinResolution, unsig
 			const int iterStop(iters*7/10);
 			const int iterStart(fThPlanarVertex > 0 ? iters*4/10 : INT_MAX);
 			Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor> gradients(refine.vertices.GetSize(),3);
-			Util::Progress progress(_T("Processed iterations"), iters);
+			Util::Progress progress(("Processed iterations"), iters);
 			GET_LOGCONSOLE().Pause();
 			for (int iter=0; iter<iters; ++iter) {
 				refine.iteration = (unsigned)iter;

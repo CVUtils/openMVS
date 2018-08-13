@@ -63,7 +63,7 @@ public:
 	{
 		Free();
 		#ifdef _MSC_VER
-		m_hLib = LoadLibrary(dllName);
+		m_hLib = LoadLibraryA(dllName);
 		#else
 		m_hLib = dlopen(dllName, RTLD_NOW);
 		#endif

@@ -37,7 +37,7 @@ public:
 	void	Update();
 
 	void	SetClock(uint8_t nHH, uint8_t nMM);
-	LPTSTR	GetClock(uint8_t* nHH, uint8_t* nMM, LPTSTR szChar) const;
+	LPSTR	GetClock(uint8_t* nHH, uint8_t* nMM, LPSTR szChar) const;
 
 	#ifdef FIX_FPS
 	inline uint32_t	GetFPS() const			{ return m_nLastSecFrames; }

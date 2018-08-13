@@ -176,8 +176,8 @@ static const uint64_t gs_au64CRC64[256] =
 String Util::getHomeFolder()
 {
 	#ifdef _MSC_VER
-	TCHAR homedir[MAX_PATH];
-	if (SHGetSpecialFolderPath(0, homedir, CSIDL_PROFILE, TRUE) != TRUE)
+	char homedir[MAX_PATH];
+	if (SHGetSpecialFolderPathA(0, homedir, CSIDL_PROFILE, TRUE) != TRUE)
 		return String();
 	#else
 	const char *homedir;
@@ -191,24 +191,24 @@ String Util::getHomeFolder()
 String Util::getApplicationFolder()
 {
 	#ifdef _MSC_VER
-	TCHAR appdir[MAX_PATH];
-	if (SHGetSpecialFolderPath(0, appdir, CSIDL_APPDATA, TRUE) != TRUE)
+	char appdir[MAX_PATH];
+	if (SHGetSpecialFolderPathA(0, appdir, CSIDL_APPDATA, TRUE) != TRUE)
 		return String();
 	String dir(String(appdir) + PATH_SEPARATOR);
 	#else
 	const char *homedir;
 	if ((homedir = getenv("HOME")) == NULL)
 		homedir = getpwuid(getuid())->pw_dir;
-	String dir(String(homedir) + PATH_SEPARATOR + String(_T(".config")) + PATH_SEPARATOR);
+	String dir(String(homedir) + PATH_SEPARATOR + String((".config")) + PATH_SEPARATOR);
 	#endif // _MSC_VER
 	return ensureUnifySlash(dir);
 }
 
 String Util::getCurrentFolder()
 {
-	TCHAR pathname[MAX_PATH+1];
+	char pathname[MAX_PATH+1];
 	#ifdef _MSC_VER
-	if (!GetCurrentDirectory(MAX_PATH, pathname))
+	if (!GetCurrentDirectoryA(MAX_PATH, pathname))
 	#else // _MSC_VER
 	if (!getcwd(pathname, MAX_PATH))
 	#endif // _MSC_VER
@@ -244,23 +244,23 @@ String Util::GetCPUInfo()
 	String cpu(info.name[0] == 0 ? info.vendor : info.name);
 	#if 0
 	if (info.bFMA)
-		cpu += _T(" FMA");
+		cpu += (" FMA");
 	else if (info.bAVX)
-		cpu += _T(" AVX");
+		cpu += (" AVX");
 	else if (info.bSSE42)
-		cpu += _T(" SSE4.2");
+		cpu += (" SSE4.2");
 	else if (info.bSSE41)
-		cpu += _T(" SSE4.1");
+		cpu += (" SSE4.1");
 	else if (info.bSSE3)
-		cpu += _T(" SSE3");
+		cpu += (" SSE3");
 	else if (info.bSSE2)
-		cpu += _T(" SSE2");
+		cpu += (" SSE2");
 	else if (info.bSSE)
-		cpu += _T(" SSE");
+		cpu += (" SSE");
 	if (info.b3DNOWEX)
-		cpu += _T(" 3DNOWEX");
+		cpu += (" 3DNOWEX");
 	else if (info.b3DNOW)
-		cpu += _T(" 3DNOW");
+		cpu += (" 3DNOW");
 	#endif
 	return cpu;
 }
@@ -303,7 +303,7 @@ String Util::GetRAMInfo()
 	const size_t nTotalVirtual((size_t)info.totalswap);
 
 	#endif // _MSC_VER
-	return formatBytes(nTotalPhys) + _T(" Physical Memory ") + formatBytes(nTotalVirtual) + _T(" Virtual Memory");
+	return formatBytes(nTotalPhys) + (" Physical Memory ") + formatBytes(nTotalVirtual) + (" Virtual Memory");
 }
 /*----------------------------------------------------------------*/
 
@@ -319,31 +319,31 @@ String Util::GetOSInfo()
 	#else
 	if (IsWindows10OrGreater())
 	#endif
-		os = _T("Windows 10+");
+		os = ("Windows 10+");
 	else if (IsWindows8Point1OrGreater())
-		os = _T("Windows 8.1");
+		os = ("Windows 8.1");
 	else if (IsWindows8OrGreater())
-		os = _T("Windows 8");
+		os = ("Windows 8");
 	else if (IsWindows7SP1OrGreater())
-		os = _T("Windows 7 (SP1)");
+		os = ("Windows 7 (SP1)");
 	else if (IsWindows7OrGreater())
-		os = _T("Windows 7");
+		os = ("Windows 7");
 	else if (IsWindowsVistaSP2OrGreater())
-		os = _T("Windows Vista (SP2)");
+		os = ("Windows Vista (SP2)");
 	else if (IsWindowsVistaSP1OrGreater())
-		os = _T("Windows Vista (SP1)");
+		os = ("Windows Vista (SP1)");
 	else if (IsWindowsVistaOrGreater())
-		os = _T("Windows Vista");
+		os = ("Windows Vista");
 	else if (IsWindowsXPSP3OrGreater())
-		os = _T("Windows XP (SP3)");
+		os = ("Windows XP (SP3)");
 	else if (IsWindowsXPSP2OrGreater())
-		os = _T("Windows XP (SP2)");
+		os = ("Windows XP (SP2)");
 	else if (IsWindowsXPSP1OrGreater())
-		os = _T("Windows XP (SP1)");
+		os = ("Windows XP (SP1)");
 	else if (IsWindowsXPOrGreater())
-		os = _T("Windows XP");
+		os = ("Windows XP");
 	else
-		os = _T("Windows (unknown version)");
+		os = ("Windows (unknown version)");
 	#else
 	OSVERSIONINFOEX ver;
 	memset(&ver, 0, sizeof(OSVERSIONINFOEX));
@@ -612,16 +612,16 @@ bool OSSupportsAVX()
 void Util::LogBuild()
 {
 	#if TD_VERBOSE == TD_VERBOSE_OFF
-	LOG(_T("Build date: ") __DATE__);
+	LOG("Build date: " __DATE__);
 	#else
-	LOG(_T("Build date: ") __DATE__ _T(", ") __TIME__);
+	LOG("Build date: " __DATE__ ", " __TIME__);
 	#endif
-	LOG((_T("CPU: ") + Util::GetCPUInfo()).c_str());
-	LOG((_T("RAM: ") + Util::GetRAMInfo()).c_str());
-	LOG((_T("OS: ") + Util::GetOSInfo()).c_str());
-	if (!SIMD_ENABLED.isSet(Util::SSE)) LOG(_T("warning: no SSE compatible CPU or OS detected"));
-	else if (!SIMD_ENABLED.isSet(Util::AVX)) LOG(_T("warning: no AVX compatible CPU or OS detected"));
-	else LOG(_T("SSE & AVX compatible CPU & OS detected"));
+	LOG((("CPU: ") + Util::GetCPUInfo()).c_str());
+	LOG((("RAM: ") + Util::GetRAMInfo()).c_str());
+	LOG((("OS: ") + Util::GetOSInfo()).c_str());
+	if (!SIMD_ENABLED.isSet(Util::SSE)) LOG(("warning: no SSE compatible CPU or OS detected"));
+	else if (!SIMD_ENABLED.isSet(Util::AVX)) LOG(("warning: no AVX compatible CPU or OS detected"));
+	else LOG(("SSE & AVX compatible CPU & OS detected"));
 }
 
 // print information about the memory usage
@@ -633,17 +633,17 @@ void Util::LogMemoryInfo()
 	PROCESS_MEMORY_COUNTERS pmc;
 	if (!GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)))
 		return;
-	LOG(_T("MEMORYINFO: {"));
-	LOG(_T("\tPageFaultCount %d"), pmc.PageFaultCount);
-	LOG(_T("\tPeakWorkingSetSize %s"), SEACAVE::Util::formatBytes(pmc.PeakWorkingSetSize).c_str());
-	LOG(_T("\tWorkingSetSize %s"), SEACAVE::Util::formatBytes(pmc.WorkingSetSize).c_str());
-	LOG(_T("\tQuotaPeakPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaPeakPagedPoolUsage).c_str());
-	LOG(_T("\tQuotaPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaPagedPoolUsage).c_str());
-	LOG(_T("\tQuotaPeakNonPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaPeakNonPagedPoolUsage).c_str());
-	LOG(_T("\tQuotaNonPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaNonPagedPoolUsage).c_str());
-	LOG(_T("\tPagefileUsage %s"), SEACAVE::Util::formatBytes(pmc.PagefileUsage).c_str());
-	LOG(_T("\tPeakPagefileUsage %s"), SEACAVE::Util::formatBytes(pmc.PeakPagefileUsage).c_str());
-	LOG(_T("} ENDINFO"));
+	LOG(("MEMORYINFO: {"));
+	LOG(("\tPageFaultCount %d"), pmc.PageFaultCount);
+	LOG(("\tPeakWorkingSetSize %s"), SEACAVE::Util::formatBytes(pmc.PeakWorkingSetSize).c_str());
+	LOG(("\tWorkingSetSize %s"), SEACAVE::Util::formatBytes(pmc.WorkingSetSize).c_str());
+	LOG(("\tQuotaPeakPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaPeakPagedPoolUsage).c_str());
+	LOG(("\tQuotaPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaPagedPoolUsage).c_str());
+	LOG(("\tQuotaPeakNonPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaPeakNonPagedPoolUsage).c_str());
+	LOG(("\tQuotaNonPagedPoolUsage %s"), SEACAVE::Util::formatBytes(pmc.QuotaNonPagedPoolUsage).c_str());
+	LOG(("\tPagefileUsage %s"), SEACAVE::Util::formatBytes(pmc.PagefileUsage).c_str());
+	LOG(("\tPeakPagefileUsage %s"), SEACAVE::Util::formatBytes(pmc.PeakPagefileUsage).c_str());
+	LOG(("} ENDINFO"));
 }
 #else // _MSC_VER
 void Util::LogMemoryInfo()
@@ -652,12 +652,12 @@ void Util::LogMemoryInfo()
 	if (!proc.is_open())
 		return;
 	String s;
-	LOG(_T("MEMORYINFO: {"));
+	LOG(("MEMORYINFO: {"));
 	while (std::getline(proc, s), !proc.fail()) {
 		if (s.substr(0, 6) == "VmPeak" || s.substr(0, 6) == "VmSize")
-			LOG(_T("\t%s"), s.c_str());
+			LOG(("\t%s"), s.c_str());
 	}
-	LOG(_T("} ENDINFO"));
+	LOG(("} ENDINFO"));
 }
 #endif // _MSC_VER
 

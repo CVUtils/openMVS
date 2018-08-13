@@ -109,7 +109,7 @@ extern String g_strWorkingFolderFull; // full path to current folder
 }
 #define DEFOPT_SPACE(SPACE, name) namespace SPACE { \
 	SEACAVE::CConfigTable oConfig(name); \
-	typedef LPCTSTR (*FNCINDEX)(); \
+	typedef LPCSTR (*FNCINDEX)(); \
 	typedef void (*FNCINIT)(SEACAVE::IDX); \
 	typedef void (*FNCUPDATE)(); \
 	VoidArr arrFncOpt; \
@@ -128,27 +128,27 @@ extern String g_strWorkingFolderFull; // full path to current folder
 #define DEFVAR_OPTION(SPACE, flags, type, name, title, desc, ...) namespace SPACE { \
 	type name; \
     GENERAL_API void setField##name(type v) { name = v; } \
-	LPCTSTR defval_##name(NULL); \
+	LPCSTR defval_##name(NULL); \
 	void update_##name() { \
 		SEACAVE::String::FromString(oConfig[title].val, name); \
 	} \
 	void init_##name(SEACAVE::IDX idx) { \
-		LPCTSTR const vals[] = {__VA_ARGS__}; \
+		LPCSTR const vals[] = {__VA_ARGS__}; \
 		arrFncOpt[idx] = (void*)update_##name; \
 		SMLVALUE& val = oConfig[title]; \
 		CFGITEM& opt = *((CFGITEM*)val.data); \
 		opt.state = flags; \
 		val.val = opt.defval = (defval_##name != NULL ? defval_##name : vals[0]); \
 		opt.vals.Insert(opt.defval); \
-		for (size_t i=1; i<sizeof(vals)/sizeof(LPCTSTR); ++i) \
+		for (size_t i=1; i<sizeof(vals)/sizeof(LPCSTR); ++i) \
 			opt.vals.Insert(vals[i]); \
 		SEACAVE::String::FromString(opt.defval, name); \
 	} \
-	LPCTSTR index_##name() { \
+	LPCSTR index_##name() { \
 		arrFncOpt.Insert((void*)init_##name); \
 		return title; \
 	} \
-	LPCTSTR const name_##name(index_##name()); \
+	LPCSTR const name_##name(index_##name()); \
 }
 
 #define FDEFVAR_string(SPACE, flags, name, title, desc, ...)  DEFVAR_OPTION(SPACE, flags, String, name, title, desc, __VA_ARGS__)

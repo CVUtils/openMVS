@@ -32,12 +32,12 @@ Log::Log()
 	// generate default log type
 	#ifndef DEFAULT_LOGTYPE
 	String appName = Util::getAppName();
-	appName = (Util::getFileExt(appName) == _T(".exe") ? Util::getFileName(appName) : Util::getFileNameExt(appName));
+	appName = (Util::getFileExt(appName) == (".exe") ? Util::getFileName(appName) : Util::getFileNameExt(appName));
 	UINT n = MINF((UINT)appName.length(), (UINT)LOGTYPE_SIZE);
-	_tcsncpy(g_appType.szName, appName, n);
+	strncpy(g_appType.szName, appName, n);
 	while (n < LOGTYPE_SIZE)
-		g_appType.szName[n++] = _T(' ');
-	g_appType.szName[LOGTYPE_SIZE] = _T('\0');
+		g_appType.szName[n++] = (' ');
+	g_appType.szName[LOGTYPE_SIZE] = ('\0');
 	#endif
 	ResetTypes();
 }
@@ -58,16 +58,16 @@ void Log::UnregisterListener(ClbkRecordMsg clbk)
 }
 
 //Register a new type of log messages (LOGTYPE_SIZE chars)
-UINT Log::RegisterType(LPCTSTR lt)
+UINT Log::RegisterType(LPCSTR lt)
 {
 	ASSERT(strlen(lt) == LOGTYPE_SIZE);
 	const UINT idx = (UINT)m_arrLogTypes.GetSize();
 	LogType& logType = m_arrLogTypes.AddEmpty();
 	UINT n = MINF((UINT)strlen(lt), (UINT)LOGTYPE_SIZE);
-	_tcsncpy(logType.szName, lt, n);
+	strncpy(logType.szName, lt, n);
 	while (n < LOGTYPE_SIZE)
-		logType.szName[n++] = _T(' ');
-	logType.szName[LOGTYPE_SIZE] = _T('\0');
+		logType.szName[n++] = (' ');
+	logType.szName[LOGTYPE_SIZE] = ('\0');
 	return idx;
 }
 
@@ -79,7 +79,7 @@ void Log::ResetTypes()
 	m_arrLogTypes.Empty();
 }
 
-void Log::Write(LPCTSTR szFormat, ...)
+void Log::Write(LPCSTR szFormat, ...)
 {
 	if (m_arrRecordClbk == NULL)
 		return;
@@ -88,7 +88,7 @@ void Log::Write(LPCTSTR szFormat, ...)
 	_Record(NO_ID, szFormat, args);
 	va_end(args);
 }
-void Log::Write(UINT lt, LPCTSTR szFormat, ...)
+void Log::Write(UINT lt, LPCSTR szFormat, ...)
 {
 	if (m_arrRecordClbk == NULL)
 		return;
@@ -101,20 +101,20 @@ void Log::Write(UINT lt, LPCTSTR szFormat, ...)
 /**
  * Write message to the log if this exists
  * -> IN: UINT - log type
- *        LPCTSTR - format message
+ *        LPCSTR - format message
  *        ...  - values
  */
-void Log::_Record(UINT lt, LPCTSTR szFormat, va_list args)
+void Log::_Record(UINT lt, LPCSTR szFormat, va_list args)
 {
 	ASSERT(m_arrRecordClbk != NULL);
 	if (m_arrRecordClbk->IsEmpty())
 		return;
 
 	// Format a message by adding the date (auto adds new line)
-	TCHAR szTime[256];
-	TCHAR szBuffer[2048];
+	char szTime[256];
+	char szBuffer[2048];
 	#if defined(LOG_DATE) || defined(LOG_TIME)
-	TCHAR* szPtrTime = szTime;
+	char* szPtrTime = szTime;
 	#ifdef _MSC_VER
 	SYSTEMTIME st;
 	GetLocalTime(&st);
@@ -122,13 +122,13 @@ void Log::_Record(UINT lt, LPCTSTR szFormat, va_list args)
 	WLock l(m_lock);
 	#endif
 	#ifdef LOG_DATE
-	szPtrTime += GetDateFormat(LOCALE_USER_DEFAULT,0,&st,_T("dd'.'MM'.'yy"),szPtrTime,80)-1;
+	szPtrTime += GetDateFormat(LOCALE_USER_DEFAULT,0,&st,("dd'.'MM'.'yy"),szPtrTime,80)-1;
 	#endif
 	#if defined(LOG_DATE) && defined(LOG_TIME)
-	szPtrTime[0] = _T('-'); ++szPtrTime;
+	szPtrTime[0] = ('-'); ++szPtrTime;
 	#endif
 	#ifdef LOG_TIME
-	szPtrTime += GetTimeFormat(LOCALE_USER_DEFAULT,0,&st,_T("HH':'mm':'ss"),szPtrTime,80)-1;
+	szPtrTime += GetTimeFormatA(LOCALE_USER_DEFAULT,0,&st,("HH':'mm':'ss"),szPtrTime,80)-1;
 	#endif
 	#else // _MSC_VER
 	const time_t t = time(NULL);
@@ -137,7 +137,7 @@ void Log::_Record(UINT lt, LPCTSTR szFormat, va_list args)
 	szPtrTime += strftime(szPtrTime, 80, "%y.%m.%d", tmp);
 	#endif
 	#if defined(LOG_DATE) && defined(LOG_TIME)
-	szPtrTime[0] = _T('-'); ++szPtrTime;
+	szPtrTime[0] = ('-'); ++szPtrTime;
 	#endif
 	#ifdef LOG_TIME
 	szPtrTime += strftime(szPtrTime, 80, "%H:%M:%S", tmp);
@@ -145,11 +145,11 @@ void Log::_Record(UINT lt, LPCTSTR szFormat, va_list args)
 	#endif // _MSC_VER
 	#endif // LOG_DATE || LOG_TIME
 	#ifdef DEFAULT_LOGTYPE
-	LPCTSTR const logType(lt<m_arrLogTypes.GetSize() ? m_arrLogTypes[lt] : (LPCSTR)DEFAULT_LOGTYPE);
+	LPCSTR const logType(lt<m_arrLogTypes.GetSize() ? m_arrLogTypes[lt] : (LPCSTR)DEFAULT_LOGTYPE);
 	#else
-	LPCTSTR const logType(lt<m_arrLogTypes.GetSize() ? m_arrLogTypes[lt] : g_appType);
+	LPCSTR const logType(lt<m_arrLogTypes.GetSize() ? m_arrLogTypes[lt] : g_appType);
 	#endif
-	if ((size_t)_vsntprintf(szBuffer, 2048, szFormat, args) > 2048) {
+	if ((size_t)_vsnprintf(szBuffer, 2048, szFormat, args) > 2048) {
 		// not enough space for the full string, reprint dynamically
 		m_message.FormatSafe("%s [%s] %s" LINE_SEPARATOR_STR, szTime, logType, String::FormatStringSafe(szFormat, args).c_str());
 	} else {
@@ -176,7 +176,7 @@ LogFile::LogFile()
 {
 }
 
-bool LogFile::Open(LPCTSTR logName)
+bool LogFile::Open(LPCSTR logName)
 {
 	Util::ensureFolder(logName);
 	m_ptrFile = new File(logName, File::WRITE, File::CREATE | File::TRUNCATE);
@@ -434,7 +434,7 @@ void LogConsole::Close()
 void LogConsole::Record(const String& msg)
 {
 	ASSERT(IsOpen());
-	printf(_T("%s"), msg.c_str());
+	printf(("%s"), msg.c_str());
 	fflush(stdout);
 }
 

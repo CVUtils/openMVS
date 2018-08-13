@@ -1371,7 +1371,7 @@ void DepthMapsData::FuseDepthMaps(PointCloud& pointcloud, bool bEstimateNormal)
 	pointcloud.points.Reserve(nPointsEstimate);
 	pointcloud.pointViews.Reserve(nPointsEstimate);
 	pointcloud.pointWeights.Reserve(nPointsEstimate);
-	Util::Progress progress(_T("Fused depth-maps"), connections.GetSize());
+	Util::Progress progress(("Fused depth-maps"), connections.GetSize());
 	GET_LOGCONSOLE().Pause();
 	FOREACHPTR(pConnection, connections) {
 		TD_TIMER_STARTD();

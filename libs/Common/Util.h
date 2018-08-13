@@ -21,22 +21,22 @@
 
 // D E F I N E S ///////////////////////////////////////////////////
 
-#define PATH_SEPARATOR _T('/')
-#define PATH_SEPARATOR_STR _T("/")
-#define REVERSE_PATH_SEPARATOR _T('\\')
+#define PATH_SEPARATOR '/'
+#define PATH_SEPARATOR_STR "/"
+#define REVERSE_PATH_SEPARATOR '\\'
 
 #ifdef _MSC_VER
-#define LINE_SEPARATOR_STR _T("\r\n")
+#define LINE_SEPARATOR_STR "\r\n"
 #define LINE_SEPARATOR_LEN 2
 #else
-#define LINE_SEPARATOR_STR _T("\n")
+#define LINE_SEPARATOR_STR "\n"
 #define LINE_SEPARATOR_LEN 1
 #endif
 
 #ifdef _MSC_VER
-#define SETTINGS_PATH _T("%APPDATA%")
+#define SETTINGS_PATH "%APPDATA%"
 #else
-#define SETTINGS_PATH _T("~/.config")
+#define SETTINGS_PATH "~/.config"
 #endif
 
 #define ensureUnifySlashWin		ensureUnifyReverseSlash
@@ -205,12 +205,12 @@ class GENERAL_API Util
 public:
 	static String getAppName() {
 		#ifdef _MSC_VER
-		TCHAR buf[MAX_PATH+1];
-		GetModuleFileName(NULL, buf, MAX_PATH);
+		char buf[MAX_PATH+1];
+		GetModuleFileNameA(NULL, buf, MAX_PATH);
         String sbuf(buf);
 		return ensureUnifySlash(sbuf);
 		#else // _MSC_VER
-		LPTSTR home = getenv("HOME");
+		LPSTR home = getenv("HOME");
 		if (home == NULL)
 			return String();
 		String name(String(home) + "/app");
@@ -219,19 +219,19 @@ public:
 	}
 
 	// generate a unique name based on process ID and time
-	static String getUniqueName(TCHAR dash='-')
+	static String getUniqueName(char dash='-')
 	{
-		TCHAR szDate[256];
+		char szDate[256];
 		#ifdef _MSC_VER
 		SYSTEMTIME st;
 		GetLocalTime(&st);
-		LPTSTR szTime = szDate+
-		GetDateFormat(LOCALE_USER_DEFAULT,0,&st,_T("yy''MM''dd"),szDate,80);
-		GetTimeFormat(LOCALE_USER_DEFAULT,0,&st,_T("HH''mm''ss"),szTime,80);
+		LPSTR szTime = szDate+
+		GetDateFormatA(LOCALE_USER_DEFAULT,0,&st,("yy''MM''dd"),szDate,80);
+		GetTimeFormatA(LOCALE_USER_DEFAULT,0,&st,("HH''mm''ss"),szTime,80);
 		#else // _MSC_VER
 		const time_t t = time(NULL);
 		const struct tm *tmp = localtime(&t);
-		LPTSTR szTime = szDate+1+
+		LPSTR szTime = szDate+1+
 		strftime(szDate, 80, "%y%m%d", tmp);
 		strftime(szTime, 80, "%H%M%S", tmp);
 		#endif // _MSC_VER
@@ -244,18 +244,18 @@ public:
 	static String translateError(int aError) {
 		#ifdef _MSC_VER
 		LPVOID lpMsgBuf;
-		FormatMessage(
+		FormatMessageA(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			FORMAT_MESSAGE_FROM_SYSTEM |
 			FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL,
 			aError,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-			(LPTSTR) &lpMsgBuf,
+			(LPSTR) &lpMsgBuf,
 			0,
 			NULL
 			);
-		String tmp((LPCTSTR)lpMsgBuf);
+		String tmp((LPCSTR)lpMsgBuf);
 		// Free the buffer.
 		LocalFree(lpMsgBuf);
 		String::size_type i;
@@ -308,26 +308,26 @@ public:
 		String::size_type start = 0;
 		while ((start = path.find(PATH_SEPARATOR, start)) != String::npos)
 			#ifdef _MSC_VER
-			CreateDirectory(path.substr(0, ++start).c_str(), NULL);
+			CreateDirectoryA(path.substr(0, ++start).c_str(), NULL);
 			#else
 			mkdir(path.substr(0, ++start).c_str(), 0755);
 			#endif
 	}
 
 	static String& ensureValidPath(String& path) {
-		return simplifyPath(ensureUnifySlash(strTrim(path, _T("\""))));
+		return simplifyPath(ensureUnifySlash(strTrim(path, ("\""))));
 	}
 	static String& ensureValidFolderPath(String& path) {
-		return simplifyPath(ensureFolderSlash(ensureUnifySlash(strTrim(path, _T("\"")))));
+		return simplifyPath(ensureFolderSlash(ensureUnifySlash(strTrim(path, ("\"")))));
 	}
 
-	static inline bool isFullPath(LPCTSTR path) {
+	static inline bool isFullPath(LPCSTR path) {
 		// returns true if local drive full path or network path
 		return (path && (
 			#ifdef _MSC_VER
-			(path[1]==_T(':') && path[0]!=_T('\0')) ||
+			(path[1]==(':') && path[0]!=('\0')) ||
 			#else // _MSC_VER
-			path[0]==_T('/') ||
+			path[0]==('/') ||
 			#endif // _MSC_VER
 			#ifdef UNICODE
 			*reinterpret_cast<const DWORD*>(path)==0x5C005C00/*"\\\\"*/));
@@ -341,15 +341,15 @@ public:
 		return getCurrentFolder()+str;
 	}
 
-	static inline bool isParentFolder(LPCTSTR path, int off=0) {
+	static inline bool isParentFolder(LPCSTR path, int off=0) {
 		// returns true if the folder starting at the given position in path is the parent folder ".."
-		if (off < 0 || path[off] != _T('.'))
+		if (off < 0 || path[off] != ('.'))
 			return false;
 		if (off > 0 && path[off-1] != PATH_SEPARATOR)
 			return false;
-		if (path[off+1] != _T('.'))
+		if (path[off+1] != ('.'))
 			return false;
-		return path[off+2] == _T('\0') || path[off+2] == PATH_SEPARATOR;
+		return path[off+2] == ('\0') || path[off+2] == PATH_SEPARATOR;
 	}
 
 	static String getHomeFolder();
@@ -361,9 +361,9 @@ public:
 
 	static String ensureUnitPath(const String& path)
 	{
-		if (path.find(_T(" ")) == String::npos)
+		if (path.find((" ")) == String::npos)
 			return path;
-		return String(_T("\"")+path+_T("\""));
+		return String(("\"")+path+("\""));
 	}
 
 	static String& simplifyPath(String& path) {
@@ -372,7 +372,7 @@ public:
 		{
 		// removes all "./" occurrences
 		String::size_type i(0);
-		while ((i = path.find(_T(".") PATH_SEPARATOR_STR, i)) != String::npos) {
+		while ((i = path.find("." PATH_SEPARATOR_STR, i)) != String::npos) {
 			if (i > 0 && path[i-1] != PATH_SEPARATOR)
 				i += 2;
 			else
@@ -381,7 +381,7 @@ public:
 		{
 		// removes all "folder/../" occurrences
 		String::size_type i(0);
-		while ((i = path.find(_T("..") PATH_SEPARATOR_STR, i)) != String::npos) {
+		while ((i = path.find(".." PATH_SEPARATOR_STR, i)) != String::npos) {
 			if (i > 1 && path[i-1] == PATH_SEPARATOR) {
 				String::size_type prev = path.rfind(PATH_SEPARATOR, i-2);
 				if (prev == String::npos) prev = 0; else ++prev;
@@ -442,9 +442,9 @@ public:
 	}
 	static int compareFileName(const String& path1, const String& path2) {
 		#ifdef _MSC_VER
-		return _tcsicmp(path1, path2);
+		return stricmp(path1, path2);
 		#else // _MSC_VER
-		return _tcscmp(path1, path2);
+		return strcmp(path1, path2);
 		#endif // _MSC_VER
 	}
 
@@ -452,10 +452,10 @@ public:
 		String::size_type pos = str.find(label);
 		if (pos == String::npos)
 			return String();
-		pos = str.find(_T("="), pos);
+		pos = str.find(("="), pos);
 		if (pos == String::npos)
 			return String();
-		String::size_type end = str.find_first_of(_T(LINE_SEPARATOR_STR), ++pos);
+		String::size_type end = str.find_first_of((LINE_SEPARATOR_STR), ++pos);
 		return str.substr(pos, end-pos);
 	}
 
@@ -532,34 +532,34 @@ public:
 		UINT rez = (UINT)(sTime / ((int64_t)24*3600*1000));
 		if (rez) {
 			++nrNumbers;
-			len += _stprintf(buf+len, "%ud", rez);
+			len += sprintf(buf+len, "%ud", rez);
 		}
 		if (nAproximate > 3 && nrNumbers > 0)
 			return buf;
 		rez = (UINT)((sTime%((int64_t)24*3600*1000)) / (3600*1000));
 		if (rez) {
 			++nrNumbers;
-			len += _stprintf(buf+len, "%uh", rez);
+			len += sprintf(buf+len, "%uh", rez);
 		}
 		if (nAproximate > 2 && nrNumbers > 0)
 			return buf;
 		rez = (UINT)((sTime%((int64_t)3600*1000)) / (60*1000));
 		if (rez) {
 			++nrNumbers;
-			len += _stprintf(buf+len, "%um", rez);
+			len += sprintf(buf+len, "%um", rez);
 		}
 		if (nAproximate > 1 && nrNumbers > 0)
 			return buf;
 		rez = (UINT)((sTime%((int64_t)60*1000)) / (1*1000));
 		if (rez) {
 			++nrNumbers;
-			len += _stprintf(buf+len, "%us", rez);
+			len += sprintf(buf+len, "%us", rez);
 		}
 		if (nAproximate > 0 && nrNumbers > 0)
 			return buf;
 		rez = (UINT)(sTime%((int64_t)1*1000));
 		if (rez || !nrNumbers)
-			len += _stprintf(buf+len, "%ums", rez);
+			len += sprintf(buf+len, "%ums", rez);
 
 		return String(buf, len);
 	}
@@ -598,28 +598,28 @@ public:
 		#endif
 	}
 
-	static int64_t toInt64(LPCTSTR aString) {
+	static int64_t toInt64(LPCSTR aString) {
 		#ifdef _MSC_VER
 		return _atoi64(aString);
 		#else
 		return atoll(aString);
 		#endif
 	}
-	static int toInt(LPCTSTR aString) {
+	static int toInt(LPCSTR aString) {
 		return atoi(aString);
 	}
-	static uint32_t toUInt32Hex(LPCTSTR aString) {
+	static uint32_t toUInt32Hex(LPCSTR aString) {
 		uint32_t val;
 		sscanf(aString, "%x", &val);
 		return val;
 	}
-	static uint32_t toUInt32(LPCTSTR aString) {
+	static uint32_t toUInt32(LPCSTR aString) {
 		return (uint32_t)atoi(aString);
 	}
-	static double toDouble(LPCTSTR aString) {
+	static double toDouble(LPCSTR aString) {
 		return atof(aString);
 	}
-	static float toFloat(LPCTSTR aString) {
+	static float toFloat(LPCSTR aString) {
 		return (float)atof(aString);
 	}
 
@@ -696,10 +696,10 @@ public:
 	static void		LogMemoryInfo();
 
 	static LPSTR* CommandLineToArgvA(LPCSTR CmdLine, size_t& _argc);
-	static String CommandLineToString(size_t argc, LPCTSTR* argv) {
+	static String CommandLineToString(size_t argc, LPCSTR* argv) {
 		String strCmdLine;
 		for (size_t i=1; i<argc; ++i)
-			strCmdLine += _T(" ") + String(argv[i]);
+			strCmdLine += (" ") + String(argv[i]);
 		return strCmdLine;
 	}
 
@@ -743,22 +743,22 @@ public:
 			const float percentage((float)done/(float)total);
 			const Timer::Type remaining(percentage<0.01f && (done<10 || elapsed<10*1000) ? Timer::Type(0) : elapsed/percentage - elapsed);
 			// display progress
-			print(String::FormatString(_T("%s %u (%.2f%%, %s, ETA %s)..."), msg.c_str(), done, percentage*100.f, formatTime((int64_t)elapsed,1).c_str(), formatTime((int64_t)remaining,2).c_str()));
+			print(String::FormatString(("%s %u (%.2f%%, %s, ETA %s)..."), msg.c_str(), done, percentage*100.f, formatTime((int64_t)elapsed,1).c_str(), formatTime((int64_t)remaining,2).c_str()));
 		}
 		void close() {
 			// make sure we print the complete progress
 			const Timer::Type elapsed(Timer::SysTime2TimeMs(Timer::GetSysTime()-start));
 			// display progress
-			print(String::FormatString(_T("%s %u (100%%, %s)"), msg.c_str(), total, formatTime((int64_t)elapsed).c_str()));
-			std::cout << _T("\n");
+			print(String::FormatString(("%s %u (100%%, %s)"), msg.c_str(), total, formatTime((int64_t)elapsed).c_str()));
+			std::cout << ("\n");
 			processed = 0;
 		}
 		void print(const String& line) {
 			// print given line and make sure the last line is erased
 			const size_t msgLen = line.length();
-			std::cout << _T("\r") << line;
+			std::cout << ("\r") << line;
 			if (lastMsgLen > msgLen)
-				std::cout << String(lastMsgLen-msgLen, _T(' '));
+				std::cout << String(lastMsgLen-msgLen, (' '));
 			std::cout << std::flush;
 			lastMsgLen = msgLen;
 		}

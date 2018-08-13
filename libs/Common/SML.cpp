@@ -19,13 +19,13 @@ using namespace SEACAVE;
 #define SML_AUTOVALUES					SML_AUTOVALUES_ON
 #endif
 
-#define SML_SECTIONOPENBRACKET			_T("{")
-#define SML_SECTIONCLOSEBRACKET			_T("}")
-#define SML_NAMEOPENBRACKET				_T("[")
-#define SML_NAMECLOSEBRACKET			_T("]")
-#define SML_NAMETOKEN					_T("=")
-#define SML_VALUETOKEN					_T("\n")
-#define SML_INDENT						_T("\t")
+#define SML_SECTIONOPENBRACKET			"{"
+#define SML_SECTIONCLOSEBRACKET			"}"
+#define SML_NAMEOPENBRACKET				"["
+#define SML_NAMECLOSEBRACKET			"]"
+#define SML_NAMETOKEN					"="
+#define SML_VALUETOKEN					"\n"
+#define SML_INDENT						"\t"
 
 #define SML_TOKEN_SECTIONOPENBRACKET	SML_SECTIONOPENBRACKET[0]
 #define SML_TOKEN_SECTIONCLOSEBRACKET	SML_SECTIONCLOSEBRACKET[0]
@@ -34,7 +34,7 @@ using namespace SEACAVE;
 #define SML_TOKEN_NAMETOKEN				SML_NAMETOKEN[0]
 #define SML_TOKEN_VALUETOKEN			SML_VALUETOKEN[0]
 #define SML_TOKEN_INDENT				SML_INDENT[0]
-#define SML_TOKEN_IGNORECHARS			_T("\n\r\t ")
+#define SML_TOKEN_IGNORECHARS			"\n\r\t "
 
 
 // S T R U C T S ///////////////////////////////////////////////////
@@ -120,13 +120,13 @@ bool SML::ParseSection(TokenIStream& filter, MemFile& memFile)
 		if (!sectionFilter.isEOS()) {
 			// if a name open bracket was found before the EOS,
 			// then restore it for the parent next ParseSection()
-			memFile.setPos(posMemFile+(lenValues+1)*sizeof(TCHAR));
+			memFile.setPos(posMemFile+(lenValues+1)*sizeof(char));
 			if (!filter.isEOS())
 				filter.restoreToken();
 			break;
 		}
 		else {
-			ASSERT(memFile.getSize()-posMemFile == lenValues*(size_f_t)sizeof(TCHAR));
+			ASSERT(memFile.getSize()-posMemFile == lenValues*(size_f_t)sizeof(char));
 			ASSERT(posMemFile == 0 || memFile.getSize()-posMemFile == memFile.getSizeLeft() || memFile.getSizeLeft() == 0);
 			memFile.setSize(0);
 		}
@@ -141,8 +141,8 @@ bool SML::ParseSection(TokenIStream& filter, MemFile& memFile)
 		ASSERT(!filter.isEOS());
 		if (lenName == 0)
 			return false; // Parse Error: invalid section name
-		const String strChildName((LPCTSTR)memFile.getData(), (UINT)lenName);
-		memFile.growSize(-((size_f_t)(lenName*sizeof(TCHAR))));
+		const String strChildName((LPCSTR)memFile.getData(), (UINT)lenName);
+		memFile.growSize(-((size_f_t)(lenName*sizeof(char))));
 		ASSERT(memFile.getSize() == 0);
 		// create the child with the given name
 		const IDX idxChild = CreateChildUnique(strChildName);
@@ -186,15 +186,15 @@ bool SML::ParseValues(MemFile& valuesMemFile)
 		String szName;
 		if (filterValue.trimBackLine(memValue) == lenName || lenNameValueReal == lenName) {
 			// no name found, auto generate the name
-			szName = _T("Item") + String::ToString(size());
+			szName = ("Item") + String::ToString(size());
 		} else {
 			// read the name
-			szName = (LPCTSTR)memValue.getData();
+			szName = (LPCSTR)memValue.getData();
 			memValue.setSize(0);
 		}
 		#else
 		filterValue.trimBackLine(memValue);
-		String szName = (LPCTSTR)memValue.getData();
+		String szName = (LPCSTR)memValue.getData();
 		ASSERT(!filterValue.isEOS() && !szName.IsEmpty());
 		if (filterValue.isEOS() || szName.IsEmpty()) {
 			memValue.setSize(0);
@@ -208,9 +208,9 @@ bool SML::ParseValues(MemFile& valuesMemFile)
 		SMLVALUE& val = operator[](szName);
 		// parse value
 		filterValue.read(memValue);
-		LPCTSTR szValue = filterValue.trimFrontLine(memValue);
+		LPCSTR szValue = filterValue.trimFrontLine(memValue);
 		val.val = szValue;
-		ASSERT((size_f_t)_tcslen(szValue) == memValue.getSizeLeft());
+		ASSERT((size_f_t)strlen(szValue) == memValue.getSizeLeft());
 		memValue.setSize(0);
 		memLine.setSize(0);
 		filterValue.setPos(0);
@@ -236,17 +236,17 @@ bool SML::Save(const String& fileName, SAVEFLAG flags) const
 bool SML::Save(OSTREAM& oStream, SAVEFLAG flags) const
 {
 	// save all values and all children
-	return SaveIntern(oStream, _T(""), flags);
+	return SaveIntern(oStream, (""), flags);
 }
 bool SML::SaveBracketize(OSTREAM& oStream, const String& strIndent, SAVEFLAG flags) const
 {
 	// save its name
-	oStream.print(_T("%s" SML_NAMEOPENBRACKET "%s" SML_NAMECLOSEBRACKET "\n"), strIndent.c_str(), m_strName.c_str());
-	oStream.print(_T("%s" SML_SECTIONOPENBRACKET "\n"), strIndent.c_str());
+	oStream.print(("%s" SML_NAMEOPENBRACKET "%s" SML_NAMECLOSEBRACKET "\n"), strIndent.c_str(), m_strName.c_str());
+	oStream.print(("%s" SML_SECTIONOPENBRACKET "\n"), strIndent.c_str());
 	// save all values and all children
 	SaveIntern(oStream, strIndent+SML_TOKEN_INDENT, flags);
 	// close bracket
-	oStream.print(_T("%s" SML_SECTIONCLOSEBRACKET "\n"), strIndent.c_str());
+	oStream.print(("%s" SML_SECTIONCLOSEBRACKET "\n"), strIndent.c_str());
 	return true;
 }
 bool SML::SaveIntern(OSTREAM& oStream, const String& strIndent, SAVEFLAG flags) const
@@ -257,7 +257,7 @@ bool SML::SaveIntern(OSTREAM& oStream, const String& strIndent, SAVEFLAG flags) 
 		StringArr lines(0, GetSize());
 		for (SMLITEMMAP::const_iterator item=GetBegin(); item!=GetEnd(); ++item)
 			if (!m_fncSaveItem || m_fncSaveItem((*item).second, m_fncItemData))
-				lines.InsertSort(String::FormatString(_T("%s%s " SML_NAMETOKEN " %s" SML_VALUETOKEN), strIndent.c_str(), (*item).first.c_str(), (*item).second.val.c_str()),
+				lines.InsertSort(String::FormatString(("%s%s " SML_NAMETOKEN " %s" SML_VALUETOKEN), strIndent.c_str(), (*item).first.c_str(), (*item).second.val.c_str()),
 					(flgs.isAnySet(SORT) ? String::CompareAlphabetically : String::CompareAlphabeticallyInv));
 		FOREACH(l, lines)
 			oStream.print(lines[l]);
@@ -265,7 +265,7 @@ bool SML::SaveIntern(OSTREAM& oStream, const String& strIndent, SAVEFLAG flags) 
 		// save all values directly
 		for (SMLITEMMAP::const_iterator item=GetBegin(); item!=GetEnd(); ++item)
 			if (!m_fncSaveItem || m_fncSaveItem((*item).second, m_fncItemData))
-				oStream.print(_T("%s%s " SML_NAMETOKEN " %s" SML_VALUETOKEN), strIndent.c_str(), (*item).first.c_str(), (*item).second.val.c_str());
+				oStream.print(("%s%s " SML_NAMETOKEN " %s" SML_VALUETOKEN), strIndent.c_str(), (*item).first.c_str(), (*item).second.val.c_str());
 	}
 	// save now all children
 	bool bFirst = IsEmpty();
@@ -278,7 +278,7 @@ bool SML::SaveIntern(OSTREAM& oStream, const String& strIndent, SAVEFLAG flags) 
 		if (bFirst)
 			bFirst = false;
 		else
-			oStream.print(_T("\n"));
+			oStream.print(("\n"));
 		// save child
 		pSML->SaveBracketize(oStream, strIndent, flags);
 	}
@@ -393,7 +393,7 @@ void SML::SetFncItem(TFncInitItem fncInit, TFncSaveItem fncSave, TFncReleaseItem
  */
 int STCALL SML::Compare(const void* l, const void* r)
 {
-	return _tcscmp((*((const SML**)l))->GetName(), (*((const SML**)r))->GetName());
+	return strcmp((*((const SML**)l))->GetName(), (*((const SML**)r))->GetName());
 }
 /*----------------------------------------------------------------*/
 
@@ -402,6 +402,6 @@ int STCALL SML::Compare(const void* l, const void* r)
  */
 int STCALL SML::CompareName(const void* l, const void* r)
 {
-	return _tcscmp((*((const SML**)l))->GetName(), ((const String*)r)->c_str());
+	return strcmp((*((const SML**)l))->GetName(), ((const String*)r)->c_str());
 }
 /*----------------------------------------------------------------*/

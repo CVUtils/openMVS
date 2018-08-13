@@ -776,7 +776,7 @@ bool Scene::ReconstructMesh(float distInsert, bool bUseFreeSpaceSupport, unsigne
 		typedef CGAL::Spatial_sort_traits_adapter_3<delaunay_t::Geom_traits, point_t*> Search_traits;
 		CGAL::spatial_sort(indices.begin(), indices.end(), Search_traits(&vertices[0], delaunay.geom_traits()));
 		// insert vertices
-		Util::Progress progress(_T("Points inserted"), indices.size());
+		Util::Progress progress(("Points inserted"), indices.size());
 		const float distInsertSq(SQUARE(distInsert));
 		vertex_handle_t hint;
 		delaunay_t::Locate_type lt;
@@ -911,7 +911,7 @@ bool Scene::ReconstructMesh(float distInsert, bool bUseFreeSpaceSupport, unsigne
 		// compute the weights for each edge
 		{
 		TD_TIMER_STARTD();
-		Util::Progress progress(_T("Points weighted"), delaunay.number_of_vertices());
+		Util::Progress progress(("Points weighted"), delaunay.number_of_vertices());
 		#ifdef DELAUNAY_USE_OPENMP
 		delaunay_t::Vertex_iterator vertexIter(delaunay.vertices_begin());
 		const int64_t nVerts(delaunay.number_of_vertices()+1);

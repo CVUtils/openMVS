@@ -504,7 +504,7 @@ bool MeshTexture::ListCameraFaces(FaceDataViewArr& facesDatas, float fOutlierThr
 	#endif
 
 	// extract array of faces viewed by each image
-	Util::Progress progress(_T("Initialized views"), images.GetSize());
+	Util::Progress progress(("Initialized views"), images.GetSize());
 	typedef float real;
 	TImage<real> imageGradMag;
 	TImage<real>::EMat mGrad[2];

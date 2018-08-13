@@ -22,8 +22,8 @@
 #define LOG_THREAD // make log multi-thread safe
 #define LOG_STREAM // add stream support (operator <<)
 #define LOGTYPE_SIZE	8
-//#define DEFAULT_LOGTYPE	_T("App     ")
-#define DEFAULT_LOGTYPE	_T("Recon 3D")
+//#define DEFAULT_LOGTYPE	("App     ")
+#define DEFAULT_LOGTYPE	("Recon 3D")
 
 #define DECLARE_LOG() \
 	protected: static const UINT ms_nLogType;
@@ -55,10 +55,10 @@ public:
 	void		Join(Log& log) { m_arrRecordClbk = log.m_arrRecordClbk; }
 	void		RegisterListener(ClbkRecordMsg);
 	void		UnregisterListener(ClbkRecordMsg);
-	UINT		RegisterType(LPCTSTR);
+	UINT		RegisterType(LPCSTR);
 	void		ResetTypes();
-	void		Write(LPCTSTR, ...);
-	void		Write(UINT, LPCTSTR, ...);
+	void		Write(LPCSTR, ...);
+	void		Write(UINT, LPCSTR, ...);
 
 	#ifdef LOG_STREAM
 	template<class T> inline Log& operator<<(const T& val) {
@@ -70,9 +70,9 @@ public:
 		#endif
 		ostr << val;
 		const std::string& line = ostr.str();
-		if (!line.empty() && *(line.end()-1) == _T('\n')) {
+		if (!line.empty() && *(line.end()-1) == ('\n')) {
 			Write(line.substr(0, line.size()-1).c_str());
-			ostr.str(_T(""));
+			ostr.str((""));
 		}
 		return *this;
 	}
@@ -89,20 +89,20 @@ public:
 		std::ostringstream& ostr = m_stream;
 		#endif
 		Write(ostr.str().c_str());
-		ostr.str(_T(""));
+		ostr.str((""));
 		return *this;
 	}
 	#endif
 
 protected:
 	// write a message of a certain type to the log
-	void		_Record(UINT, LPCTSTR, va_list); 
+	void		_Record(UINT, LPCSTR, va_list); 
 
 protected:
 	struct LogType {
-		TCHAR szName[LOGTYPE_SIZE+1];
-		inline operator LPCTSTR () const { return szName; }
-		inline operator LPTSTR () { return szName; }
+		char szName[LOGTYPE_SIZE+1];
+		inline operator LPCSTR () const { return szName; }
+		inline operator LPSTR () { return szName; }
 	};
 	typedef cList<LogType, const LogType&, 0, 8> LogTypeArr;
 
@@ -155,7 +155,7 @@ public:
 	~LogFile() { Close(); }
 
 	// log methods
-	bool			Open(LPCTSTR);
+	bool			Open(LPCSTR);
 	void			Close();
 	void			Pause();
 	void			Play();

@@ -212,7 +212,7 @@
 #else
 #define ASSERT(exp)	{if (!(exp)) __debugbreak();}
 #endif // _INC_CRTDBG
-#define TRACE(...) {TCHAR buffer[2048];	_sntprintf(buffer, 2048, __VA_ARGS__); OutputDebugString(buffer);}
+#define TRACE(...) {char buffer[2048];	_snprintf(buffer, 2048, __VA_ARGS__); OutputDebugStringA(buffer);}
 #else // _MSC_VER
 #include <assert.h>
 #define ASSERT(exp)	assert(exp)

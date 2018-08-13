@@ -123,7 +123,7 @@ public:
 		cpt = 0;
 	}
 
-	void init(unsigned W, unsigned H, LPCTSTR szGraphName=NULL) {
+	void init(unsigned W, unsigned H, LPCSTR szGraphName=NULL) {
 		reset();
 		std::string strGraphName;
 		if (szGraphName == NULL) {
@@ -139,7 +139,7 @@ public:
 	}
 
 	template<typename VECTX, typename VECTY, typename STR>
-	void addXYChart(const VECTX& vec_x, const VECTY& vec_y, const STR& stype, LPCTSTR sface=_T("o"), LPCTSTR sizeStroke=_T("2"), LPCTSTR colFill=_T("#0077cc"), LPCTSTR colStroke=_T("#0044ee")) {
+	void addXYChart(const VECTX& vec_x, const VECTY& vec_y, const STR& stype, LPCSTR sface=("o"), LPCSTR sizeStroke=("2"), LPCSTR colFill=("#0077cc"), LPCSTR colStroke=("#0044ee")) {
 		typedef typename VECTX::value_type TX;
 		typedef typename VECTY::value_type TY;
 		size_t index0 = cpt++;
@@ -158,7 +158,7 @@ public:
 	}
 
 	template<typename VECTY, typename STR>
-	void addYChart(const VECTY& vec_y, const STR& stype, LPCTSTR sface=_T("o"), LPCTSTR sizeStroke=_T("2"), LPCTSTR colFill=_T("#0077cc"), LPCTSTR colStroke=_T("#0044ee")) {
+	void addYChart(const VECTY& vec_y, const STR& stype, LPCSTR sface=("o"), LPCSTR sizeStroke=("2"), LPCSTR colFill=("#0077cc"), LPCSTR colStroke=("#0044ee")) {
 		typedef typename VECTY::value_type TY;
 		size_t index0 = cpt++;
 		stream << "var data"<< index0<<"= [";
@@ -170,7 +170,7 @@ public:
 	}
 
 	template<typename TX, typename TY>
-	void addLine(TX x0, TY y0, TX x1, TY y1, LPCTSTR color=_T("#00ff00")) {
+	void addLine(TX x0, TY y0, TX x1, TY y1, LPCSTR color=("#00ff00")) {
 		size_t index0 = cpt++;
 		size_t index1 = cpt++;
 		stream <<

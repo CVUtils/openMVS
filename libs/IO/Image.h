@@ -64,7 +64,7 @@ public:
 	virtual ~CImage()	{}
 
 	virtual HRESULT		Reset(UINT width, UINT height, PIXELFORMAT pixFormat, UINT levels = 1, bool bAllocate = false);
-	virtual HRESULT		Reset(LPCTSTR szFileName, IMCREATE mode);
+	virtual HRESULT		Reset(LPCSTR szFileName, IMCREATE mode);
 	virtual HRESULT		Reset(IOSTREAMPTR& pStream);
 	virtual void		Close();
 
@@ -99,10 +99,10 @@ public:
 	static void			FlipRB24(uint8_t* data, UINT size, UINT stride);
 	static void			CopyFlipRB24(uint8_t* pDst, const uint8_t* pSrc, UINT size, UINT strideDst, UINT strideSrc);
 
-	static CImage*		Create(LPCTSTR szName, IMCREATE mode);
+	static CImage*		Create(LPCSTR szName, IMCREATE mode);
 
 	#ifndef _RELEASE
-	void				Dump(LPCTSTR szFileName);
+	void				Dump(LPCSTR szFileName);
 	#endif
 
 protected:

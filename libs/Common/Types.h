@@ -422,7 +422,7 @@ typedef class GENERAL_API CSharedPtr<IOSTREAM>			IOSTREAMPTR;
 typedef IOSTREAM*										LPIOSTREAM;
 
 typedef class GENERAL_API cList<void*, void*, 0>        VoidArr;
-typedef class GENERAL_API cList<LPCTSTR, LPCTSTR, 0>	LPCTSTRArr;
+typedef class GENERAL_API cList<LPCSTR, LPCSTR, 0>	LPCSTRArr;
 typedef class GENERAL_API cList<String>                 StringArr;
 typedef class GENERAL_API cList<IDX, IDX, 0>			IDXArr;
 typedef class GENERAL_API cList<uint8_t, uint8_t, 0>    Unsigned8Arr;

@@ -59,7 +59,7 @@ using namespace MVS;
 #define MDEFVAR_OPTDENSE_double(name, title, desc, ...) DEFVAR_double(OPTDENSE, name, title, desc, __VA_ARGS__)
 
 namespace MVS {
-DEFOPT_SPACE(OPTDENSE, _T("Dense"))
+DEFOPT_SPACE(OPTDENSE, ("Dense"))
 
 MDEFVAR_OPTDENSE_uint32(nMinResolution, "Min Resolution", "Do not scale images lower than this resolution", "640")
 DEFVAR_OPTDENSE_uint32(nResolutionLevel, "Resolution Level", "How many times to scale down the images before dense reconstruction", "1")

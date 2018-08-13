@@ -1018,7 +1018,7 @@ void Mesh::Clean(float fDecimate, float fSpurious, bool bRemoveSpikes, unsigned 
 		if (pp.NormalCheck)
 			pp.NormalThrRad = M_PI/4.0;
 		const int OriginalFaceNum(mesh.fn);
-		Util::Progress progress(_T("Decimated faces"), OriginalFaceNum-TargetFaceNum);
+		Util::Progress progress(("Decimated faces"), OriginalFaceNum-TargetFaceNum);
 		vcg::LocalOptimization<CLEAN::Mesh> DeciSession(mesh, &pp);
 		DeciSession.Init<CLEAN::TriEdgeCollapse>();
 		DeciSession.SetTargetSimplices(TargetFaceNum);
@@ -1267,7 +1267,7 @@ bool Mesh::Load(const String& fileName)
 	TD_TIMER_STARTD();
 	const String ext(Util::getFileExt(fileName).ToLower());
 	bool ret;
-	if (ext == _T(".obj"))
+	if (ext == (".obj"))
 		ret = LoadOBJ(fileName);
 	else
 		ret = LoadPLY(fileName);
@@ -1353,7 +1353,7 @@ bool Mesh::LoadPLY(const String& fileName)
 				}
 				// load the texture
 				for (const std::string& comment: ply.get_comments()) {
-					if (_tcsncmp(comment.c_str(), _T("TextureFile "), 12) == 0) {
+					if (strncmp(comment.c_str(), ("TextureFile "), 12) == 0) {
 						const String textureFileName(comment.substr(12));
 						textureDiffuse.Load(Util::getFilePath(fileName)+textureFileName);
 						break;
@@ -1429,10 +1429,10 @@ bool Mesh::Save(const String& fileName, const cList<String>& comments, bool bBin
 	TD_TIMER_STARTD();
 	const String ext(Util::getFileExt(fileName).ToLower());
 	bool ret;
-	if (ext == _T(".obj"))
+	if (ext == (".obj"))
 		ret = SaveOBJ(fileName);
 	else
-		ret = SavePLY(ext != _T(".ply") ? String(fileName+_T(".ply")) : fileName, comments, bBinary);
+		ret = SavePLY(ext != (".ply") ? String(fileName+(".ply")) : fileName, comments, bBinary);
 	if (!ret)
 		return false;
 	DEBUG_EXTRA("Mesh saved: %u vertices, %u faces (%s)", vertices.GetSize(), faces.GetSize(), TD_TIMER_GET_FMT().c_str());
@@ -1459,8 +1459,8 @@ bool Mesh::SavePLY(const String& fileName, const cList<String>& comments, bool b
 	// export texture file name as comment if needed
 	String textureFileName;
 	if (!faceTexcoords.IsEmpty() && !textureDiffuse.empty()) {
-		textureFileName = Util::getFileFullName(fileName)+_T(".png");
-		ply.append_comment((_T("TextureFile ")+Util::getFileNameExt(textureFileName)).c_str());
+		textureFileName = Util::getFileFullName(fileName)+(".png");
+		ply.append_comment((("TextureFile ")+Util::getFileNameExt(textureFileName)).c_str());
 	}
 
 	if (vertexNormals.IsEmpty()) {
@@ -1550,7 +1550,7 @@ bool Mesh::SaveOBJ(const String& fileName) const
 	}
 
 	// store faces
-	ObjModel::Group& group = model.AddGroup(_T("material_0"));
+	ObjModel::Group& group = model.AddGroup(("material_0"));
 	group.faces.reserve(faces.GetSize());
 	FOREACH(idxFace, faces) {
 		const Face& face = faces[idxFace];

@@ -29,22 +29,22 @@ public:
 
 public:
 	inline String() {}
-	inline String(LPCTSTR sz) : Base(sz) {}
+	inline String(LPCSTR sz) : Base(sz) {}
 	inline String(const Base& str) : Base(str) {}
 	inline String(size_t n, value_type v) : Base(n, v) {}
-	inline String(LPCTSTR sz, size_t count) : Base(sz, count) {}
-	inline String(LPCTSTR sz, size_t offset, size_t count) : Base(sz, offset, count) {}
+	inline String(LPCSTR sz, size_t count) : Base(sz, count) {}
+	inline String(LPCSTR sz, size_t offset, size_t count) : Base(sz, offset, count) {}
 
 	inline void Release() { return clear(); }
 	inline bool IsEmpty() const { return empty(); }
 
-	inline operator LPCTSTR() const { return c_str(); }
+	inline operator LPCSTR() const { return c_str(); }
 
-	String& Format(LPCTSTR szFormat, ...) {
+	String& Format(LPCSTR szFormat, ...) {
 		va_list args;
 		va_start(args, szFormat);
-		TCHAR szBuffer[2048];
-		const size_t len((size_t)_vsntprintf(szBuffer, 2048, szFormat, args));
+		char szBuffer[2048];
+		const size_t len((size_t)_vsnprintf(szBuffer, 2048, szFormat, args));
 		if (len > 2048) {
 			*this = FormatStringSafe(szFormat, args);
 			va_end(args);
@@ -54,23 +54,23 @@ public:
 		}
 		return *this;
 	}
-	String& FormatSafe(LPCTSTR szFormat, ...) {
+	String& FormatSafe(LPCSTR szFormat, ...) {
 		va_list args;
 		va_start(args, szFormat);
-		const size_t len((size_t)_vsctprintf(szFormat, args));
+		const size_t len((size_t)_vscprintf(szFormat, args));
 		ASSERT(len != (size_t)-1);
-		TCHAR* szBuffer(new TCHAR[len]);
-		_vsntprintf(szBuffer, len, szFormat, args);
+		char* szBuffer(new char[len]);
+		_vsnprintf(szBuffer, len, szFormat, args);
 		va_end(args);
 		this->assign(szBuffer, len);
 		delete[] szBuffer;
 		return *this;
 	}
-	static String FormatString(LPCTSTR szFormat, ...) {
+	static String FormatString(LPCSTR szFormat, ...) {
 		va_list args;
 		va_start(args, szFormat);
-		TCHAR szBuffer[2048];
-		const size_t len((size_t)_vsntprintf(szBuffer, 2048, szFormat, args));
+		char szBuffer[2048];
+		const size_t len((size_t)_vsnprintf(szBuffer, 2048, szFormat, args));
 		if (len > 2048) {
 			const String str(FormatStringSafe(szFormat, args));
 			va_end(args);
@@ -79,11 +79,11 @@ public:
 		va_end(args);
 		return String(szBuffer, len);
 	}
-	static inline String FormatStringSafe(LPCTSTR szFormat, va_list args) {
-		const size_t len((size_t)_vsctprintf(szFormat, args));
+	static inline String FormatStringSafe(LPCSTR szFormat, va_list args) {
+		const size_t len((size_t)_vscprintf(szFormat, args));
 		ASSERT(len != (size_t)-1);
-		TCHAR* szBuffer(new TCHAR[len]);
-		_vsntprintf(szBuffer, len, szFormat, args);
+		char* szBuffer(new char[len]);
+		_vsnprintf(szBuffer, len, szFormat, args);
 		String str(szBuffer, len);
 		delete[] szBuffer;
 		return str;
@@ -91,7 +91,7 @@ public:
 
 	inline void ToUpper(String& out) const {
 		out.resize(size());
-		std::transform(begin(), end(), out.begin(), [](TCHAR c) { return (TCHAR)std::toupper(c); });
+		std::transform(begin(), end(), out.begin(), [](char c) { return (char)std::toupper(c); });
 	}
 	inline String ToUpper() const {
 		String str;
@@ -101,7 +101,7 @@ public:
 
 	inline void ToLower(String& out) const {
 		out.resize(size());
-		std::transform(begin(), end(), out.begin(), [](TCHAR c) { return (TCHAR)std::tolower(c); });
+		std::transform(begin(), end(), out.begin(), [](char c) { return (char)std::tolower(c); });
 	}
 	inline String ToLower() const {
 		String str;
@@ -174,8 +174,8 @@ public:
 		return val;
 	}
 
-	static int CompareAlphabetically(const void* elem, const void* key) { return _tcscmp(((const String*)elem)->c_str(), ((const String*)key)->c_str()); }
-	static int CompareAlphabeticallyInv(const void* elem, const void* key) { return _tcscmp(((const String*)key)->c_str(), ((const String*)elem)->c_str()); }
+	static int CompareAlphabetically(const void* elem, const void* key) { return strcmp(((const String*)elem)->c_str(), ((const String*)key)->c_str()); }
+	static int CompareAlphabeticallyInv(const void* elem, const void* key) { return strcmp(((const String*)key)->c_str(), ((const String*)elem)->c_str()); }
 
 #ifdef _USE_BOOST
 protected:

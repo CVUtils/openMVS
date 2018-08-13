@@ -38,7 +38,7 @@ using namespace MVS;
 
 // D E F I N E S ///////////////////////////////////////////////////
 
-#define APPNAME _T("DensifyPointCloud")
+#define APPNAME "DensifyPointCloud"
 
 
 // S T R U C T S ///////////////////////////////////////////////////
@@ -69,7 +69,7 @@ namespace OPTDENSE {
 }
 
 // initialize and parse the command line parameters
-bool Initialize(size_t argc, LPCTSTR* argv)
+bool Initialize(size_t argc, LPCSTR* argv)
 {
 	// initialize log and console
 	OPEN_LOG();
@@ -80,7 +80,7 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 	generic.add_options()
 		("help,h", "produce this help message")
 		("working-folder,w", boost::program_options::value<std::string>(&WORKING_FOLDER), "working directory (default current directory)")
-		("config-file,c", boost::program_options::value<std::string>(&OPT::strConfigFileName)->default_value(APPNAME _T(".cfg")), "file name containing program options")
+		("config-file,c", boost::program_options::value<std::string>(&OPT::strConfigFileName)->default_value(APPNAME ".cfg"), "file name containing program options")
 		("archive-type", boost::program_options::value(&OPT::nArchiveType)->default_value(2), "project archive type: 0-text, 1-binary, 2-compressed binary")
 		("process-priority", boost::program_options::value(&OPT::nProcessPriority)->default_value(-1), "process priority (below normal by default)")
 		("max-threads", boost::program_options::value(&OPT::nMaxThreads)->default_value(0), "maximum number of threads (0 for using all available cores)")
@@ -149,11 +149,11 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 	}
 
 	// initialize the log file
-	OPEN_LOGFILE(MAKE_PATH(APPNAME _T("-")+Util::getUniqueName(0)+_T(".log")).c_str());
+	OPEN_LOGFILE(MAKE_PATH(APPNAME "-"+Util::getUniqueName(0)+(".log")).c_str());
 
 	// print application details: version and command line
 	Util::LogBuild();
-	LOG(_T("Command line:%s"), Util::CommandLineToString(argc, argv).c_str());
+	LOG(("Command line:%s"), Util::CommandLineToString(argc, argv).c_str());
 
 	// validate input
 	Util::ensureValidPath(OPT::strInputFileName);
@@ -170,7 +170,7 @@ bool Initialize(size_t argc, LPCTSTR* argv)
 	Util::ensureValidPath(OPT::strOutputFileName);
 	Util::ensureUnifySlash(OPT::strOutputFileName);
 	if (OPT::strOutputFileName.IsEmpty())
-		OPT::strOutputFileName = Util::getFileFullName(OPT::strInputFileName) + _T("_dense.mvs");
+		OPT::strOutputFileName = Util::getFileFullName(OPT::strInputFileName) + ("_dense.mvs");
 
 	// init dense options
 	OPTDENSE::init();
@@ -223,7 +223,7 @@ void Finalize()
 	CLOSE_LOG();
 }
 
-int main(int argc, LPCTSTR* argv)
+int main(int argc, LPCSTR* argv)
 {
 	#ifdef _DEBUGINFO
 	// set _crtBreakAlloc index to stop in <dbgheap.c> at allocation
@@ -245,7 +245,7 @@ int main(int argc, LPCTSTR* argv)
 		else
 			scene.mesh.SamplePoints((unsigned)ROUND2INT(-OPT::fSampleMesh), pointcloud);
 		VERBOSE("Sample mesh completed: %u points (%s)", pointcloud.GetSize(), TD_TIMER_GET_FMT().c_str());
-		pointcloud.Save(MAKE_PATH_SAFE(Util::getFileFullName(OPT::strOutputFileName))+_T(".ply"));
+		pointcloud.Save(MAKE_PATH_SAFE(Util::getFileFullName(OPT::strOutputFileName))+(".ply"));
 		Finalize();
 		return EXIT_SUCCESS;
 	}
@@ -265,11 +265,11 @@ int main(int argc, LPCTSTR* argv)
 
 	// save the final mesh
 	const String baseFileName(MAKE_PATH_SAFE(Util::getFileFullName(OPT::strOutputFileName)));
-	scene.Save(baseFileName+_T(".mvs"), (ARCHIVE_TYPE)OPT::nArchiveType);
-	scene.pointcloud.Save(baseFileName+_T(".ply"));
+	scene.Save(baseFileName+(".mvs"), (ARCHIVE_TYPE)OPT::nArchiveType);
+	scene.pointcloud.Save(baseFileName+(".ply"));
 	#if TD_VERBOSE != TD_VERBOSE_OFF
 	if (VERBOSITY_LEVEL > 2)
-		scene.ExportCamerasMLP(baseFileName+_T(".mlp"), baseFileName+_T(".ply"));
+		scene.ExportCamerasMLP(baseFileName+(".mlp"), baseFileName+(".ply"));
 	#endif
 
 	Finalize();
