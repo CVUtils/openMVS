@@ -329,11 +329,11 @@ public:
 			#else // _MSC_VER
 			path[0]==('/') ||
 			#endif // _MSC_VER
-			#ifdef UNICODE
-			*reinterpret_cast<const DWORD*>(path)==0x5C005C00/*"\\\\"*/));
-			#else
+			//#ifdef UNICODE
+			//*reinterpret_cast<const DWORD*>(path)==0x5C005C00/*"\\\\"*/));
+			//#else
 			*reinterpret_cast<const WORD*>(path)==0x5C5C/*"\\\\"*/));
-			#endif // UNICODE
+			//#endif // UNICODE
 	}
 	static String getFullPath(const String& str) {
 		if (isFullPath(str))

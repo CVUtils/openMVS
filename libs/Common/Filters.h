@@ -355,11 +355,11 @@ private:
 
 #define LAYER_TOKEN	4
 
-#ifdef _UNICODE
-#define TOKEN_SIZE		2 //in bytes
-#else
+//#ifdef _UNICODE
+//#define TOKEN_SIZE		2 //in bytes
+//#else
 #define TOKEN_SIZE		1 //in bytes
-#endif
+//#endif
 #define TOKEN_MAXBUF	(2048*TOKEN_SIZE) //in bytes
 #define TOKEN_MAXIGN	32 //in chars
 template<bool managed>
