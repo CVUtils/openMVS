@@ -700,12 +700,23 @@ bool DepthMapsData::EstimateDepthMap(IIndex idxImage)
 		#endif
 	}
 
+    BitMatrix mask;
+#ifdef _USE_BOOST
+    std::ifstream fs(ComposeDepthFilePath(idxImage, "bmask"), std::ios::in | std::ios::binary);
+    if (fs.is_open())
+    {
+        boost::archive::text_iarchive ar(fs, ARCHIVE_BINARY_ZIP);
+        mask.load(ar, 0);
+        fs.close();
+    }
+#endif
+
 	// init integral images and index to image-ref map for the reference data
 	Image64F imageSum0;
 	cv::integral(image.image, imageSum0, CV_64F);
 	if (prevDepthMapSize != size) {
 		prevDepthMapSize = size;
-		BitMatrix mask;
+		//BitMatrix mask;
 		DepthEstimator::MapMatrix2ZigzagIdx(size, coords, mask, MAXF(64,(int)nMaxThreads*8));
 	}
 
@@ -788,34 +799,23 @@ bool DepthMapsData::EstimateDepthMap(IIndex idxImage)
 	}
 
     // mask results
+    if (!mask.empty() && mask.size().width > 0 && mask.size().height > 0)
     {
-        BitMatrix mask;
-#ifdef _USE_BOOST
-        std::ifstream fs(ComposeDepthFilePath(idxImage, "bmask"), std::ios::in | std::ios::binary);
-        if (fs.is_open())
+        float scaleX = 1.f;
+        float scaleY = 1.f;
+        if (mask.size() != size)
         {
-            boost::archive::text_iarchive ar(fs, ARCHIVE_BINARY_ZIP);
-            mask.load(ar, 0);
+            scaleX = (float)mask.size().width / (float)size.width;
+            scaleY = (float)mask.size().height / (float)size.height;
         }
-#endif
-        if (!mask.empty() && mask.size().width > 0 && mask.size().height > 0)
-        {
-            float scaleX = 1.f;
-            float scaleY = 1.f;
-            if (mask.size() != size)
-            {
-                scaleX = (float)mask.size().width / (float)size.width;
-                scaleY = (float)mask.size().height / (float)size.height;
-            }
-            for (int i = 0; i < size.height; ++i)
-                for (int j = 0; j < size.width; ++j)
-                    if (!mask.isSet((int)((float)i * scaleY + 0.5f), (int)((float)j * scaleX + 0.5f)))
-                    {
-                        depthData.depthMap(i, j) = 0;
-                        depthData.confMap(i, j) = 0;
-                        //depthData.normalMap(i, j) = Normal::ZERO;
-                    }
-        }
+        for (int i = 0; i < size.height; ++i)
+            for (int j = 0; j < size.width; ++j)
+                if (!mask.isSet((int)((float)i * scaleY + 0.5f), (int)((float)j * scaleX + 0.5f)))
+                {
+                    depthData.depthMap(i, j) = 0;
+                    depthData.confMap(i, j) = 0;
+                    //depthData.normalMap(i, j) = Normal::ZERO;
+                }
         mask.release();
     }
 

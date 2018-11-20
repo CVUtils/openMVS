@@ -233,8 +233,20 @@ void DepthEstimator::MapMatrix2ZigzagIdx(const Image8U::Size& size, DepthEstimat
 	typedef DepthEstimator::MapRef MapRef;
 	const int w = size.width;
 	const int w1 = size.width-1;
-	coords.Empty();
+	coords.Empty(); 
 	coords.Reserve(size.area());
+
+    float scaleMX = 1.f;
+    float scaleMY = 1.f;
+    if (!mask.empty() && mask.size().width > 0 && mask.size().height > 0)
+    {
+        if (mask.size() != size)
+        {
+            scaleMX = (float)mask.size().width / (float)size.width;
+            scaleMY = (float)mask.size().height / (float)size.height;
+        }
+    }
+
 	for (int dy=0, h=rawStride; dy<size.height; dy+=h) {
 		if (h*2 > size.height - dy)
 			h = size.height - dy;
@@ -242,7 +254,7 @@ void DepthEstimator::MapMatrix2ZigzagIdx(const Image8U::Size& size, DepthEstimat
 		MapRef x(MapRef::ZERO);
 		for (int i=0, ei=w*h; i<ei; ++i) {
 			const MapRef pt(x.x, x.y+dy);
-			if (mask.empty() || mask.isSet(pt))
+			if (mask.empty() || mask.isSet((int)((float)pt.y * scaleMY + 0.5f), (int)((float)pt.x * scaleMX + 0.5f)))
 				coords.Insert(pt);
 			if (x.x-- == 0 || ++x.y == h) {
 				if (++lastX < w) {
