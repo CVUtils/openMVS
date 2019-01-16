@@ -660,7 +660,7 @@ bool DepthMapsData::EstimateDepthMap(IIndex idxImage)
 	const Image8U::Size size(image.image.size());
 	depthData.depthMap.create(size); depthData.depthMap.memset(0);
 	depthData.normalMap.create(size);
-	depthData.confMap.create(size);
+    depthData.confMap.create(size); depthData.confMap.memset(0);
 	const unsigned nMaxThreads(scene.nMaxThreads);
 
 	// initialize the depth-map
